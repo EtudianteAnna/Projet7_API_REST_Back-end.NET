@@ -1,5 +1,6 @@
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Dot.Net.WebApi.Repositories;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -7,11 +8,20 @@ namespace Dot.Net.WebApi.Controllers
     [Route("[controller]")]
     public class BidListController : ControllerBase
     {
+        private readonly UserRepository _userRepository;
+
+        public BidListController(UserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
+
         [HttpGet]
         [Route("validate")]
         public IActionResult Validate([FromBody] BidList bidList)
         {
             // TODO: check data valid and save to db, after saving return bid list
+            // Your validation and saving logic here
+
             return Ok();
         }
 
@@ -19,7 +29,18 @@ namespace Dot.Net.WebApi.Controllers
         [Route("update/{id}")]
         public IActionResult ShowUpdateForm(int id)
         {
-            return Ok();
+            // TODO: Implement logic to retrieve a bid list for updating
+            // You may need to call a service method to retrieve the bid list by ID
+
+            var bidList = _userRepository.FindById(id);
+
+            if (bidList == null)
+            {
+                // Return a 404 Not Found if the bid list is not found
+                return NotFound();
+            }
+
+            return Ok(bidList);
         }
 
         [HttpPost]
@@ -27,14 +48,19 @@ namespace Dot.Net.WebApi.Controllers
         public IActionResult UpdateBid(int id, [FromBody] BidList bidList)
         {
             // TODO: check required fields, if valid call service to update Bid and return list Bid
+            // Your validation and updating logic here
+
             return Ok();
         }
 
         [HttpDelete]
         [Route("{id}")]
-        public IActionResult DeleteBid(int id)
+        public IActionResult UpdateCurvePoint([FromBody] CurvePoint curvePoint)
         {
+            // TODO: check required fields, if valid call service to update Curve and return Curve list
             return Ok();
         }
+
     }
 }
+

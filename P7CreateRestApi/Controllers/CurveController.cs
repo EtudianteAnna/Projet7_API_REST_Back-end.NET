@@ -1,5 +1,8 @@
-using Dot.Net.WebApi.Domain;
+using Dot.Net.WebApi.Models;
+using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -7,52 +10,36 @@ namespace Dot.Net.WebApi.Controllers
     [Route("[controller]")]
     public class CurveController : ControllerBase
     {
-        // TODO: Inject Curve Point service
+        private readonly CurvePointService _curvePointService;
+
+        public CurveController(CurvePointService curvePointService)
+        {
+            _curvePointService = curvePointService;
+        }
 
         [HttpGet]
         [Route("list")]
         public IActionResult Home()
         {
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("add")]
-        public IActionResult AddCurvePoint([FromBody]CurvePoint curvePoint)
-        {
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]CurvePoint curvePoint)
-        {
-            // TODO: check data valid and save to db, after saving return bid list
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
-        {
-            // TODO: get CurvePoint by Id and to model then show to the form
-            return Ok();
+            var curvePoints = _curvePointService.GetAllCurvePoints();
+            return Ok(curvePoints);
         }
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateCurvePoint(int id, [FromBody] CurvePoint curvePoint)
+        [Route("add")]
+        public IActionResult AddCurvePoint([FromBody] CurvePoint curvePoint)
         {
-            // TODO: check required fields, if valid call service to update Curve and return Curve list
-            return Ok();
+            if (ModelState.IsValid)
+            {
+                var savedCurvePoint = _curvePointService.AddCurvePoint(curvePoint);
+                return Ok(savedCurvePoint);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
 
-        [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteBid(int id)
-        {
-            // TODO: Find Curve by Id and delete the Curve, return to Curve list
-            return Ok();
-        }
+        // ... Les autres actions du contrôleur (validate, update, delete, etc.)
     }
 }
