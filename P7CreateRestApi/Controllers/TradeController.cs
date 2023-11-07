@@ -1,59 +1,79 @@
-using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Dot.Net.WebApi.Domain;
+using P7CreateRestApi.Repositories;
 
-namespace Dot.Net.WebApi.Controllers
+namespace P7CreateRestApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     public class TradeController : ControllerBase
     {
-        // TODO: Inject Trade service
+        private readonly ITradeRepository _tradeRepository;
+        private readonly ILogger<TradeController> _logger;
+        private object? trade;
 
-        [HttpGet]
-        [Route("list")]
-        public IActionResult Home()
+        public TradeController(ILogger<TradeController> logger, Repositories.ITradeRepository tradeRepository)
         {
-            // TODO: find all Trade, add to model
-            return Ok();
+            _logger = logger;
+            _tradeRepository = tradeRepository;
         }
 
-        [HttpGet]
-        [Route("add")]
-        public IActionResult AddTrade([FromBody]Trade trade)
+        [HttpGet("{id}")]
+        [Authorize(Roles = "Admin, RH, User")]
+        public async Task<IActionResult> Get(int id)
         {
-            return Ok();
-        }
+            _logger.LogInformation($"Récupération de la transaction avec l'ID : {id}");
 
-        [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]Trade trade)
-        {
-            // TODO: check data valid and save to db, after saving return Trade list
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
-        {
-            // TODO: get Trade by Id and to model then show to the form
-            return Ok();
+             await _tradeRepository.GetByIdAsync(id);
+            
+            {
+                _logger.LogWarning($"Transaction avec l'ID {id} non trouvée");
+                return NotFound();
+            }
+           
         }
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateTrade(int id, [FromBody] Trade trade)
+        public async Task<IActionResult> Post([FromBody] Trade trade)
         {
-            // TODO: check required fields, if valid call service to update Trade and return Trade list
-            return Ok();
+            _logger.LogInformation("Ajout d'une nouvelle transaction");
+
+            await _tradeRepository.AddAsync(trade);
+
+            _logger.LogInformation($"Transaction ajoutée avec succès. ID de la transaction : {trade.TradeId}");
+
+            return CreatedAtAction(nameof(Get), new { id = trade.TradeId }, trade);
         }
 
-        [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteTrade(int id)
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin, RH")]
+        public async Task<IActionResult> Put(int id, [FromBody] Trade trade)
         {
-            // TODO: Find Trade by Id and delete the Trade, return to Trade list
-            return Ok();
+            _logger.LogInformation($"Mise à jour de la transaction avec l'ID : {id}");
+
+            if (id != trade.TradeId)
+            {
+                _logger.LogError("Incompatibilité dans les ID de transaction. Requête incorrecte.");
+                return BadRequest();
+            }
+
+            await _tradeRepository.UpdateAsync(trade);
+
+            _logger.LogInformation($"Transaction avec l'ID {id} mise à jour avec succès");
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin, RH")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            _logger.LogInformation($"Suppression de la transaction avec l'ID : {id}");
+
+            await _tradeRepository.DeleteAsync(id);
+
+            _logger.LogInformation($"Transaction avec l'ID {id} supprimée avec succès");
+            return NoContent();
         }
     }
 }

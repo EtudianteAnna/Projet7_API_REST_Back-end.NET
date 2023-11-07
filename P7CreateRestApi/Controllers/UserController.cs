@@ -1,85 +1,81 @@
 using Dot.Net.WebApi.Domain;
-using Dot.Net.WebApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Dot.Net.WebApi.Controllers
+namespace P7CreateRestApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        private UserRepository _userRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(UserRepository userRepository)
+        public UserController(ILogger<UserController> logger, IUserRepository userRepository)
         {
+            _logger = logger;
             _userRepository = userRepository;
         }
 
-        [HttpGet]
-        [Route("list")]
-        public IActionResult Home()
-        {
-            return Ok();
-        }
-
-        [HttpGet]
+        [HttpPost]
         [Route("add")]
-        public IActionResult AddUser([FromBody]User user)
+        public async Task<IActionResult> AddUser([FromBody] User user)
         {
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]User user)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-           
-           _userRepository.Add(user);
-
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
-        {
-            User user = _userRepository.FindById(id);
-            
-            if (user == null)
-                throw new ArgumentException("Invalid user Id:" + id);
-
+            _logger.LogInformation($"Ajout de l'utilisateur : {user.Id}");
+            await _userRepository.AddUserAsync(user);
+            _logger.LogInformation($"Utilisateur ajouté avec succès : {user.Id}");
             return Ok();
         }
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateUser(int id, [FromBody] User user)
+        [Route("validate")]
+        public async Task<IActionResult> Validate([FromBody] User user)
         {
-            // TODO: check required fields, if valid call service to update Trade and return Trade list
+            _logger.LogInformation($"Validation de l'utilisateur : {user.Id}");
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("ModelState invalide");
+                return BadRequest();
+            }
+
+            await _userRepository.AddUserAsync(user);
+            _logger.LogInformation($"Utilisateur validé et ajouté avec succès : {user.Id}");
             return Ok();
         }
 
         [HttpDelete]
         [Route("{id}")]
-        public IActionResult DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(string id)
         {
-            User user = _userRepository.FindById(id);
-            
-            if (user == null)
-                throw new ArgumentException("Invalid user Id:" + id);
+            _logger.LogInformation($"Suppression de l'utilisateur avec l'ID : {id}");
 
-            return Ok();
+            await _userRepository.DeleteUserAsync(id);
+            _logger.LogInformation($"Utilisateur supprimé avec succès : {id}");
+
+            var users = await _userRepository.GetAllUsersAsync();
+            return Ok(users);
+        }
+    }
+
+    public interface IUserRepository
+    {
+        Task AddUserAsync(User user);
+        Task DeleteUserAsync(string userId);
+        Task<List<User>> GetAllUsersAsync();
+        // Autres méthodes du référentiel des utilisateurs
+    }
+
+    // Structure pour une nouvelle structure non spécifiée
+    internal record struct NewStruct(object Item1, object Item2)
+    {
+        public static implicit operator (object, object)(NewStruct value)
+        {
+            return (value.Item1, value.Item2);
         }
 
-        [HttpGet]
-        [Route("/secure/article-details")]
-        public async Task<ActionResult<List<User>>> GetAllUserArticles()
+        public static implicit operator NewStruct((object, object) value)
         {
-            return Ok();
+            return new NewStruct(value.Item1, value.Item2);
         }
     }
 }

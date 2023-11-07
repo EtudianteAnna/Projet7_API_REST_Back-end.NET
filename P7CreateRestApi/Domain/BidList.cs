@@ -32,7 +32,7 @@ namespace Dot.Net.WebApi.Domain
         [Required]
         public string BidStatus { get; set; }
             public string Trader { get; set; }
-        public string Book { get; set; }
+        public string? Book { get; set; }
         public string CreationName { get; set; }
         public DateTime? CreationDate { get; set; }
         public string RevisionName { get; set; }

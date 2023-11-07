@@ -1,16 +1,16 @@
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
-using Dot.Net.WebApi.Repositories;
 
-namespace Dot.Net.WebApi.Controllers
+namespace P7CreateRestApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     public class BidListController : ControllerBase
     {
-        private readonly UserRepository _userRepository;
+        private readonly Dot.Net.WebApi.Repositories.IUserRepository.UserRepository _userRepository;
+        private string userName;
 
-        public BidListController(UserRepository userRepository)
+        public BidListController(Dot.Net.WebApi.Repositories.IUserRepository.UserRepository userRepository)
         {
             _userRepository = userRepository;
         }
@@ -32,7 +32,7 @@ namespace Dot.Net.WebApi.Controllers
             // TODO: Implement logic to retrieve a bid list for updating
             // You may need to call a service method to retrieve the bid list by ID
 
-            var bidList = _userRepository.FindById(id);
+            var bidList = _userRepository.FindByUserName(userName);
 
             if (bidList == null)
             {

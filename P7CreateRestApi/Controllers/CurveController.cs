@@ -1,8 +1,6 @@
 using Dot.Net.WebApi.Models;
 using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 
 namespace Dot.Net.WebApi.Controllers
 {
