@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Data;
 
 namespace P7CreateRestApi.Domain
