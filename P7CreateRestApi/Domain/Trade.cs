@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-namespace Dot.Net.WebApi.Domain;
+namespace P7CreateRestApi.Domain;
 
 
 public class Trade
