@@ -12,6 +12,11 @@ namespace P7CreateRestApi.Domain
 
         public string FitchRating { get; set; }
 
+        public Rating()
+        {
+            MoodysRating = string.Empty;
+        }
+
         public byte? OrderNumber { get; set; }
     }
 
