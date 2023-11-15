@@ -23,7 +23,6 @@ namespace P7CreateRestApi.Domain
         public DateTime? CreationDate { get; set; }
     }
 
-
 public static class CurvePointEndpoints
 {
 	public static void MapCurvePointEndpoints (this IEndpointRouteBuilder routes)
