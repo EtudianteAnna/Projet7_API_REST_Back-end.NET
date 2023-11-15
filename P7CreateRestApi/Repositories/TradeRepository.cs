@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace P7CreateRestApi.Repositories
 {
-    public class TradeRepository
+    public class TradeRepository : ITradeRepository
     {
         private readonly LocalDbContext _context;
 
@@ -14,7 +16,7 @@ namespace P7CreateRestApi.Repositories
         }
         public async Task<IEnumerable<Trade>> GetAllAsync()
         {
-            IQueryable<Trade> query = _context.Trades;
+            return await _context.Trades.ToListAsync();
 
             // Ajouter la vérification pour éviter CS8604
             if (query != null)

@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace P7CreateRestApi.Repositories
 {
     public class RatingRepository : IRatingRepository
     {
         private readonly LocalDbContext _context;
+        public RatingRepository _ratingController;
 
         public RatingRepository(LocalDbContext context)
         {
@@ -18,21 +18,8 @@ namespace P7CreateRestApi.Repositories
         {
             IQueryable<Rating> query = _context.Rating;
 
-            // Ajouter la vérification pour éviter CS8604
-            if (query != null)
-            {
-                return await query.ToListAsync();
-            }
-            else
-            {
-                // Retourner une liste vide ou gérer le cas où la source est nulle selon vos besoins
-                return new List<Rating>();
-            }
-        }
-
-        public async Task<Rating> GetByIdAsync(int id)
+        public async Task<IEnumerable<Rating>> GetRatingsAsync()
         {
-            return await _context.Rating.FindAsync(id);
         }
 
         public async Task AddAsync(Rating rating)

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace P7CreateRestApi.Migrations
 {
-    public partial class pp77 : Migration
+    public partial class Pp77 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

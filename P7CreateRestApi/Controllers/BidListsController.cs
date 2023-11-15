@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
+using P7CreateRestApi.Repositories;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -9,44 +8,38 @@ namespace P7CreateRestApi.Controllers
     [ApiController]
     public class BidListsController : ControllerBase
     {
-        private readonly LocalDbContext _context;
+        private readonly IBidListRepository _repository;
 
-        public BidListsController(LocalDbContext context)
+        public BidListsController(IBidListRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
-        // GET: api/BidLists
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BidList>>> GetBidLists()
         {
-          if (_context.BidLists == null)
-          {
-              return NotFound();
-          }
-            return await _context.BidLists.ToListAsync();
+            var bidLists = await _repository.GetBidListsAsync();
+            if (bidLists == null || !bidLists.Any())
+            {
+                return NotFound(); // retour erreur 404
+            }
+
+            return Ok(bidLists); // retour 200
         }
 
-        // GET: api/BidLists/5
         [HttpGet("{id}")]
         public async Task<ActionResult<BidList>> GetBidList(int id)
         {
-          if (_context.BidLists == null)
-          {
-              return NotFound();
-          }
-            var bidList = await _context.BidLists.FindAsync(id);
+            var bidList = await _repository.GetByIdAsync(id);
 
             if (bidList == null)
             {
                 return NotFound();
             }
 
-            return bidList;
+            return Ok(bidList);
         }
 
-        // PUT: api/BidLists/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBidList(int id, BidList bidList)
         {
@@ -55,65 +48,40 @@ namespace P7CreateRestApi.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(bidList).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BidListExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _repository.UpdateAsync(bidList);
 
             return NoContent();
         }
 
-        // POST: api/BidLists
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<BidList>> PostBidList(BidList bidList)
         {
-          if (_context.BidLists == null)
-          {
-              return Problem("Entity set 'LocalDbContext.BidLists'  is null.");
-          }
-            _context.BidLists.Add(bidList);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _repository.AddAsync(bidList);
+            }
+            catch(Exception )
+            {
 
-            return CreatedAtAction("GetBidList", new { id = bidList.BidListId }, bidList);
+            }
+           
+
+            return CreatedAtAction(nameof(GetBidList), new { id = bidList.BidListId }, bidList);
         }
 
-        // DELETE: api/BidLists/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBidList(int id)
         {
-            if (_context.BidLists == null)
-            {
-                return NotFound();
-            }
-            var bidList = await _context.BidLists.FindAsync(id);
+            var bidList = await _repository.GetByIdAsync(id);
             if (bidList == null)
             {
                 return NotFound();
             }
 
-            _context.BidLists.Remove(bidList);
-            await _context.SaveChangesAsync();
+            await _repository.DeleteAsync(id);
 
             return NoContent();
         }
-
-        private bool BidListExists(int id)
-        {
-            return (_context.BidLists?.Any(e => e.BidListId == id)).GetValueOrDefault();
-        }
     }
 }
+

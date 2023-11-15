@@ -13,7 +13,7 @@ namespace P7CreateRestApi.Migrations
 {
     [DbContext(typeof(LocalDbContext))]
     [Migration("20231115103849_pp77")]
-    partial class pp77
+    partial class Pp77
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

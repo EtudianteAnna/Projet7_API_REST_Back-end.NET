@@ -1,13 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace P7CreateRestApi.Repositories
 {
-    public class UserRepository  
+    public class UserRepository : IUserRepository
     {
         private readonly LocalDbContext _context;
-
+       
         public UserRepository(LocalDbContext context)
         {
             _context = context;
@@ -24,9 +26,9 @@ namespace P7CreateRestApi.Repositories
             }
             else
             {
-                // Retourner une liste vide ou gérer le cas où la source est nulle selon vos besoins
-                return new List<User>();
-            }
+            // Retourner une liste vide ou gérer le cas où la source est nulle selon vos besoins
+            return await _context.User.ToListAsync();
+           
         }
 
         public async Task<User> GetByIdAsync(int id)
@@ -36,13 +38,12 @@ namespace P7CreateRestApi.Repositories
 
         public async Task AddAsync(User user)
         {
-            _context.User.Add(user);
+              _context.User.Add(user);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(User user)
         {
-            _ = _context.User.Update(user);
             await _context.SaveChangesAsync();
         }
 

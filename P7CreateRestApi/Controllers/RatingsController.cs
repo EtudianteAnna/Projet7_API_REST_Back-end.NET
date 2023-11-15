@@ -1,119 +1,70 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using P7CreateRestApi.Data;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Domain;
 
 namespace P7CreateRestApi.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class RatingsController : ControllerBase
+    [Route("api/[controller]")]
+    public class RatingController : ControllerBase
     {
-        private readonly LocalDbContext _context;
+        private readonly IRatingRepository _ratingRepository;
+        private readonly ILogger<RatingController> _logger;
 
-        public RatingsController(LocalDbContext context)
+        public RatingController(ILogger<RatingController> logger, IRatingRepository ratingRepository)
         {
-            _context = context;
+            _logger = logger;
+            _ratingRepository = ratingRepository;
         }
 
-        // GET: api/Ratings
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Rating>>> GetRating()
+        [HttpPost]
+        [Authorize(Roles = "Admin, RH")]
+        [ProducesResponseType(StatusCodes.Status201Created)] // Created
+        [ProducesResponseType(StatusCodes.Status400BadRequest)] // Bad Request
+        public async Task<IActionResult> Post([FromBody] Rating rating)
         {
-          if (_context.Rating == null)
-          {
-              return NotFound();
-          }
-            return await _context.Rating.ToListAsync();
+            _logger.LogInformation("Ajout d'une nouvelle note");
+            rating.Id = 0;
+
+            await _ratingRepository.AddAsync(rating);
+
+            _logger.LogInformation($"Note ajoutée avec succès. ID de la note : {rating.Id}");
+
+            return CreatedAtAction(nameof(Post), new { id = rating.Id }, rating);
         }
 
-        // GET: api/Ratings/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Rating>> GetRating(int id)
-        {
-          if (_context.Rating == null)
-          {
-              return NotFound();
-          }
-            var rating = await _context.Rating.FindAsync(id);
-
-            if (rating == null)
-            {
-                return NotFound();
-            }
-
-            return rating;
-        }
-
-        // PUT: api/Ratings/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRating(int id, Rating rating)
+        [Authorize(Roles = "Admin, RH")]
+        [ProducesResponseType(StatusCodes.Status201Created)] // Success
+        [ProducesResponseType(StatusCodes.Status400BadRequest)] // Bad Request
+        public async Task<IActionResult> Put(int id, [FromBody] Rating rating)
         {
+            _logger.LogInformation($"Mise à jour de la note avec l'ID : {id}");
+
             if (id != rating.Id)
             {
+                _logger.LogError("Incompatibilité dans les ID de note. Requête incorrecte.");
                 return BadRequest();
             }
 
-            _context.Entry(rating).State = EntityState.Modified;
+            await _ratingRepository.UpdateAsync(rating);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!RatingExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            _logger.LogInformation($"Note avec l'ID {id} mise à jour avec succès");
             return NoContent();
         }
 
-        // POST: api/Ratings
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Rating>> PostRating(Rating rating)
-        {
-          if (_context.Rating == null)
-          {
-              return Problem("Entity set 'LocalDbContext.Rating'  is null.");
-          }
-            _context.Rating.Add(rating);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetRating", new { id = rating.Id }, rating);
-        }
-
-        // DELETE: api/Ratings/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRating(int id)
+        [Authorize(Roles = "Admin, RH")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)] // No Content
+        [ProducesResponseType(StatusCodes.Status404NotFound)] // Not Found
+        public async Task<IActionResult> Delete(int id)
         {
-            if (_context.Rating == null)
-            {
-                return NotFound();
-            }
-            var rating = await _context.Rating.FindAsync(id);
-            if (rating == null)
-            {
-                return NotFound();
-            }
+            _logger.LogInformation($"Suppression de la note avec l'ID : {id}");
 
-            _context.Rating.Remove(rating);
-            await _context.SaveChangesAsync();
+            await _ratingRepository.DeleteAsync(id);
 
+            _logger.LogInformation($"Note avec l'ID {id} supprimée avec succès");
             return NoContent();
-        }
-
-        private bool RatingExists(int id)
-        {
-            return (_context.Rating?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
-}
+} // Fermeture de la classe RatingController

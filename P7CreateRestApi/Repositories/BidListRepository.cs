@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Data;
-using P7CreateRestApi.Domain; 
+using P7CreateRestApi.Domain;
 
 namespace P7CreateRestApi.Repositories
 {
-    public class BidListRepository
+    public class BidListRepository : IBidListRepository
     {
         private readonly LocalDbContext _context;
 
