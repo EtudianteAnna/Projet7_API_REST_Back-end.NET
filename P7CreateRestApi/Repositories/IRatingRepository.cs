@@ -2,7 +2,7 @@
 
 public interface IRatingRepository
 {
-    Task<IEnumerable<Rating>> GetRatingsAsync();
+    IEnumerable<Rating> GetRatingsAsync();
     Task AddAsync(Rating rating);
     Task UpdateAsync(Rating rating);
     Task DeleteAsync(int id);

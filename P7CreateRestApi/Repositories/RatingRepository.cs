@@ -2,6 +2,7 @@
 using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace P7CreateRestApi.Repositories
 {
@@ -14,37 +15,38 @@ namespace P7CreateRestApi.Repositories
         {
             _context = context;
         }
-        public async Task<IEnumerable<Rating>> GetAllAsync()
-        {
-            IQueryable<Rating> query = _context.Rating;
-
-        public async Task<IEnumerable<Rating>> GetRatingsAsync()
-        {
-        }
-
-        public async Task AddAsync(Rating rating)
-        {
-            _context.Rating.Add(rating);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task UpdateAsync(Rating rating)
-        {
-            _context.Rating.Update(rating);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            var rating = await _context.Rating.FindAsync(id);
-            if (rating != null)
+       
+            public IEnumerable<Rating> GetRatingsAsync()
             {
-                _context.Rating.Remove(rating);
+
+            return  _context.Rating;
+            
+            }
+
+            public async Task AddAsync(Rating rating)
+            {
+                _context.Rating.Add(rating);
                 await _context.SaveChangesAsync();
+            }
+
+            public async Task UpdateAsync(Rating rating)
+            {
+                _context.Rating.Update(rating);
+                await _context.SaveChangesAsync();
+            }
+
+            public async Task DeleteAsync(int id)
+            {
+                var rating = await _context.Rating.FindAsync(id);
+                if (rating != null)
+                {
+                    _context.Rating.Remove(rating);
+                    await _context.SaveChangesAsync();
+                }
             }
         }
     }
-}
+
 
 
 

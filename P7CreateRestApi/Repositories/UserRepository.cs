@@ -9,7 +9,7 @@ namespace P7CreateRestApi.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly LocalDbContext _context;
-       
+
         public UserRepository(LocalDbContext context)
         {
             _context = context;
@@ -26,35 +26,36 @@ namespace P7CreateRestApi.Repositories
             }
             else
             {
-            // Retourner une liste vide ou gérer le cas où la source est nulle selon vos besoins
-            return await _context.User.ToListAsync();
-           
-        }
+                // Retourner une liste vide ou gérer le cas où la source est nulle selon vos besoins
+                return await _context.User.ToListAsync();
 
-        public async Task<User> GetByIdAsync(int id)
-        {
-            return await _context.User.FindAsync(id);
+            }
         }
-
-        public async Task AddAsync(User user)
-        {
-              _context.User.Add(user);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task UpdateAsync(User user)
-        {
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            var rating = await _context.User.FindAsync(id);
-            if (rating != null)
+            public async Task<User> GetByIdAsync(int id)
             {
-                _context.User.Remove(rating);
+                return await _context.User.FindAsync(id);
+            }
+
+            public async Task AddAsync(User user)
+            {
+                _context.User.Add(user);
                 await _context.SaveChangesAsync();
+            }
+
+            public async Task UpdateAsync(User user)
+            {
+                await _context.SaveChangesAsync();
+            }
+
+            public async Task DeleteAsync(int id)
+            {
+                var rating = await _context.User.FindAsync(id);
+                if (rating != null)
+                {
+                    _context.User.Remove(rating);
+                    await _context.SaveChangesAsync();
+                }
             }
         }
     }
-}
+

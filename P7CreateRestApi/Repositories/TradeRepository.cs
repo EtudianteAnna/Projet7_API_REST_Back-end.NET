@@ -18,16 +18,6 @@ namespace P7CreateRestApi.Repositories
         {
             return await _context.Trades.ToListAsync();
 
-            // Ajouter la vérification pour éviter CS8604
-            if (query != null)
-            {
-                return await query.ToListAsync();
-            }
-            else
-            {
-                // Retourner une liste vide ou gérer le cas où la source est nulle selon vos besoins
-                return new List<Trade>();
-            }
         }
 
         public async Task<Trade> GetByIdAsync(int id)
