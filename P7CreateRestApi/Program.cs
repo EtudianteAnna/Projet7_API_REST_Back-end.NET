@@ -1,16 +1,28 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using P7CreateRestApi.Data;
+using P7CreateRestApi.Domain;
 using P7CreateRestApi.Repositories;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("MyPolicy",
+                builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+        });
 
         ConfigureServices(builder.Services);
 
@@ -21,11 +33,15 @@ internal class Program
         app.Run();
     }
 
-    private static void ConfigureServices(IServiceCollection services)
+    public static void ConfigureServices(IServiceCollection services)
     {
-        // Ajoutez le service MVC pour les contrôleurs
+        // Ajout du service MVC pour les contrôleurs
         services.AddMvc();
-        // Ajoutez les services DbContext et repositories
+
+        // Ajout des services DbContext et repositories
+        services.AddIdentity<User, IdentityRole>()
+               .AddDefaultTokenProviders();
+
         services.AddDbContext<LocalDbContext>(options =>
             options.UseSqlServer("YourConnectionString"));
 
@@ -35,13 +51,14 @@ internal class Program
         services.AddScoped<IRuleNameRepository, RuleNameRepository>();
         services.AddScoped<ITradeRepository, TradeRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddControllers();
 
         // Configuration du service d'authentification JWT
         services.AddSwaggerGen(swaggerGenOptions =>
         {
             swaggerGenOptions.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "Titre",
+                Title = "FINDEXIUM",
                 Version = "1.0",
                 Contact = new OpenApiContact
                 {
@@ -49,7 +66,6 @@ internal class Program
                 }
             });
         });
-
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -60,15 +76,14 @@ internal class Program
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = "your-issuer", // Mettez votre émetteur (issuer) JWT ici
-                    ValidAudience = "your-audience", // Mettez votre audience JWT ici
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your-secret-key")) // Mettez votre clé secrète JWT ici
+                    ValidIssuer = "your-issuer",
+                    ValidAudience = "your-audience",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your-secret-key"))
                 };
             });
-
     }
 
-    private static void Configure(WebApplication app, IHostEnvironment env)
+    public static void Configure(WebApplication app, IHostEnvironment env)
     {
         // ... autres configurations
 
@@ -84,9 +99,16 @@ internal class Program
 
         app.UseHttpsRedirection();
         app.UseCors("MyPolicy");
-        app.UseAuthentication(); // Ajoutez cette ligne pour activer l'authentification JWT
-        app.MapControllers();
+        app.UseAuthentication();
+        app.UseRouting();
+        app.UseAuthorization();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+
+    internal class Options
+    {
     }
 }
-
-                   

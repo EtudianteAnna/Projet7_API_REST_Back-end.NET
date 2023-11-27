@@ -6,17 +6,17 @@ namespace P7CreateRestApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly IBidListRepository _repository;
 
-        public UsersController(IBidListRepository repository)
+        public UserController(IBidListRepository repository)
         {
             _repository = repository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BidList>>> GetBidLists()
+        public async Task<ActionResult<IEnumerable<BidList>>> GetUserLists()
         {
             var bidLists = await _repository.GetBidListsAsync();
             if (bidLists == null || !bidLists.Any())
@@ -28,7 +28,7 @@ namespace P7CreateRestApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<BidList>> GetBidList(int id)
+        public async Task<ActionResult<BidList>> GetUserList(int id)
         {
             var bidList = await _repository.GetByIdAsync(id);
 
@@ -41,7 +41,7 @@ namespace P7CreateRestApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBidList(int id, BidList bidList)
+        public async Task<IActionResult> PutUserList(int id, BidList bidList)
         {
             if (id != bidList.BidListId)
             {
@@ -54,34 +54,30 @@ namespace P7CreateRestApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<BidList>> PostBidList(BidList bidList)
+        public async Task<ActionResult<BidList>> PostUserList(BidList bidList)
         {
             try
             {
                 await _repository.AddAsync(bidList);
             }
-            catch(Exception )
+            catch (Exception)
             {
 
             }
-           
 
-            return CreatedAtAction(nameof(GetBidList), new { id = bidList.BidListId }, bidList);
+
+            return CreatedAtAction(nameof(GetUserList), new { id = bidList.BidListId }, bidList);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBidList(int id)
+        public IActionResult DeleteUserList(int id)
         {
-            var bidList = await _repository.GetByIdAsync(id);
-            if (bidList == null)
-            {
-                return NotFound();
-            }
 
-            await _repository.DeleteAsync(id);
-
-            return NoContent();
+            return Ok();
         }
     }
-}
+    }
+
+
+
 

@@ -1,6 +1,5 @@
-using P7CreateRestApi.Domain;
 using Microsoft.EntityFrameworkCore;
-
+using P7CreateRestApi.Domain;
 namespace P7CreateRestApi.Data
 
 {
