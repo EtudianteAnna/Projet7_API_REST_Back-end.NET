@@ -5,7 +5,7 @@ using P7CreateRestApi.Domain;
 
 namespace P7CreateRestApi.Data
 {
-    public class LocalDbContext : IdentityDbContext
+    public class LocalDbContext : IdentityDbContext<User>
     {
 
         public LocalDbContext(DbContextOptions<LocalDbContext> options) : base(options) { }
@@ -25,7 +25,6 @@ namespace P7CreateRestApi.Data
                 new IdentityRole() { Name = "RH", ConcurrencyStamp = "3", NormalizedName = "RH" }
                 );
         }
-        public DbSet<User> User { get; set; }
         public DbSet<BidList> BidLists { get; set; }
         public DbSet<CurvePoints> CurvePoints { get; set; }
         public DbSet<Rating> Ratings { get; set; }

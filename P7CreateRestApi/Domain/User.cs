@@ -1,12 +1,10 @@
-
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Build.Framework;
 
 namespace P7CreateRestApi.Domain
 
 {
-    public class User : IdentityUser<string>
+    public class User : IdentityUser 
 
     {
         [Required]

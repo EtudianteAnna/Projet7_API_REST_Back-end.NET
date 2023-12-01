@@ -56,17 +56,13 @@ builder.Services.AddAuthentication(Options =>
     options.RequireHttpsMetadata = false;
     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
     {
-        ValidateLifetime = true,
-        ValidateAudience = true,
-        ValidAudience = configuration["JWT:ValiAudience"],
-        ValidIssuer = configuration["JWT:ValidIssuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
-
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("secret ")),
+        ValidateIssuer = false,
+        ValidateAudience = false,
 
     };
-
 });
-
 //Configuration des politiques d'autorisation
 builder.Services.AddAuthorization(options =>
 {
@@ -131,12 +127,14 @@ var app = builder.Build();
 
           // ... autres configurations
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-                
-            }
+                    
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API v1");
+        c.RoutePrefix = "";
+    });
+
 app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -150,6 +148,7 @@ app.UseHttpsRedirection();
 
 //éxécution de l'application
               app.Run();
+
              
 
     internal class Options
