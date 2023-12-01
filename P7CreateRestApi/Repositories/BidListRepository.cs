@@ -14,7 +14,7 @@ namespace P7CreateRestApi.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<BidList>> GetBidListsAsync()
+        public async Task<List<BidList>> GetBidListsAsync()
         {
             return await _context.BidLists.ToListAsync();
         }
