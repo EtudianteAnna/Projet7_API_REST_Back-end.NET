@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using P7CreateRestApi.Data;
 
@@ -11,9 +12,10 @@ using P7CreateRestApi.Data;
 namespace P7CreateRestApi.Migrations
 {
     [DbContext(typeof(LocalDbContext))]
-    partial class LocalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231201152204_CurvePoints")]
+    partial class CurvePoints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,21 +53,21 @@ namespace P7CreateRestApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "a65bcd06-ee4a-4af2-94ff-0c633086bc17",
+                            Id = "39d96804-888d-4d37-9a3b-b072625f4f72",
                             ConcurrencyStamp = "1",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
-                            Id = "4345b6cc-0c21-41f8-a21a-be9712a85c00",
+                            Id = "6b17a5a1-6e09-4730-aa82-407d32d7972e",
                             ConcurrencyStamp = "2",
                             Name = "User",
                             NormalizedName = "User"
                         },
                         new
                         {
-                            Id = "978041d7-bf48-4998-a588-161dcd73543b",
+                            Id = "b71b3302-dfd3-4318-bc23-9fbabd6b03b6",
                             ConcurrencyStamp = "3",
                             Name = "RH",
                             NormalizedName = "RH"
