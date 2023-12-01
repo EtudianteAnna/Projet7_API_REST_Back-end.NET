@@ -55,11 +55,12 @@ namespace P7CreateRestApi.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(trade).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                // Mettez ici la logique pour mettre à jour le Trade dans votre contexte ou autre moyen
+                object v = _context.Entry(trade);
+
+                ; await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -75,6 +76,7 @@ namespace P7CreateRestApi.Controllers
 
             return NoContent();
         }
+
 
         // POST: api/Trades
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

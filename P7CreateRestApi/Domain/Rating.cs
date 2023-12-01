@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace P7CreateRestApi.Domain
 {
     public class Rating
@@ -6,18 +8,21 @@ namespace P7CreateRestApi.Domain
 
         public int Id { get; set; }
 
+        [Required]
         public string? MoodysRating { get; set; }
+        [Required]
+        public string? SandPRating { get; set; }
 
-        public string ?SandPRating { get; set; }
-
+        [Required]
         public string? FitchRating { get; set; }
+
+        public byte? OrderNumber { get; set; }
 
         public Rating()
         {
             MoodysRating = string.Empty;
         }
 
-        public byte? OrderNumber { get; set; }
-    }
 
+    }
 }

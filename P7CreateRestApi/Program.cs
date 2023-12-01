@@ -1,110 +1,159 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using P7CreateRestApi.Data;
-using P7CreateRestApi.Domain;
 using P7CreateRestApi.Repositories;
+using Serilog;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
 
-internal class Program
+
+
+var builder = WebApplication.CreateBuilder(args);
+
+
+//Configuration des logs
+var configuration = builder.Configuration;
+Log.Logger = new Serilog.LoggerConfiguration()
+    .ReadFrom.Configuration(configuration)
+    .WriteTo.Console()
+    .CreateLogger();
+
+
+//Configuration de la base de données
+
+builder.Services.AddDbContext<LocalDbContext>(options=>options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+//configuration pour identity
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(Options=>
+
 {
-    public static void Main(string[] args)
+    // Password settings.
+    Options.Password.RequireDigit = true;
+    Options.Password.RequireLowercase = true;
+    Options.Password.RequireNonAlphanumeric = true;
+    Options.Password.RequireUppercase = true;
+    Options.Password.RequiredLength = 8;
+}
+
+)
+   . AddEntityFrameworkStores<LocalDbContext>()
+    .AddDefaultTokenProviders();
+
+
+//Configuration de l'athentication
+builder.Services.AddAuthentication(Options =>
+{
+    Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    Options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+
+
+}).AddJwtBearer(options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
     {
-        var builder = WebApplication.CreateBuilder(args);
+        ValidateLifetime = true,
+        ValidateAudience = true,
+        ValidAudience = configuration["JWT:ValiAudience"],
+        ValidIssuer = configuration["JWT:ValidIssuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
 
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("MyPolicy",
-                builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-        });
 
-        ConfigureServices(builder.Services);
+    };
 
-        var app = builder.Build();
+});
 
-        Configure(app, builder.Environment);
+//Configuration des politiques d'autorisation
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("RHPolicy", policy => policy.RequireRole("RH"));
+    options.AddPolicy("UserPolicy", policy => policy.RequireRole("User"));
+});
 
-        app.Run();
-    }
+// Configuration des contrôleurs
+builder.Services.AddControllers();
 
-    public static void ConfigureServices(IServiceCollection services)
+//Configuration du swagger/open API
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(option =>
+{
+
+    option.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        // Ajout du service MVC pour les contrôleurs
-        services.AddMvc();
+        In = ParameterLocation.Header,
+        Description = "Vous devez saisir un jeton valide",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer",
+    });
 
-        // Ajout des services DbContext et repositories
-        services.AddIdentity<User, IdentityRole>()
-               .AddDefaultTokenProviders();
-
-        services.AddDbContext<LocalDbContext>(options =>
-            options.UseSqlServer("YourConnectionString"));
-
-        services.AddScoped<IBidListRepository, BidListRepository>();
-        services.AddScoped<ICurvePointRepository, CurvePointRepository>();
-        services.AddScoped<IRatingRepository, RatingRepository>();
-        services.AddScoped<IRuleNameRepository, RuleNameRepository>();
-        services.AddScoped<ITradeRepository, TradeRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddControllers();
-
-        // Configuration du service d'authentification JWT
-        services.AddSwaggerGen(swaggerGenOptions =>
-        {
-            swaggerGenOptions.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Title = "FINDEXIUM",
-                Version = "1.0",
-                Contact = new OpenApiContact
-                {
-                    Email = "bidon"
-                }
-            });
-        });
-
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = "your-issuer",
-                    ValidAudience = "your-audience",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your-secret-key"))
-                };
-            });
-    }
-
-    public static void Configure(WebApplication app, IHostEnvironment env)
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        // ... autres configurations
-
-        if (env.EnvironmentName == "Development")
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
+            new OpenApiSecurityScheme
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API v1");
-                c.RoutePrefix = "";
-            });
+
+               Reference=new OpenApiReference
+               {
+               Type=ReferenceType.SecurityScheme,
+               Id="Bearer"
+               }
+
+            },
+
+                new List<string>()
         }
+    });
 
-        app.UseHttpsRedirection();
-        app.UseCors("MyPolicy");
-        app.UseAuthentication();
-        app.UseRouting();
-        app.UseAuthorization();
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
-        });
-    }
+});
+
+//Configuration des services
+
+builder.Services.AddScoped<IBidListRepository, BidListRepository>();
+builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITradeRepository, TradeRepository>();
+builder.Services.AddScoped<IRuleNameRepository, RuleNameRepository>();
+builder.Services.AddScoped<ICurvePointRepository, CurvePointsRepository>();
+
+
+
+var app = builder.Build();
+
+
+          // ... autres configurations
+
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+                
+            }
+app.UseHttpsRedirection();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+
+//mapping des contrôleurs
+
+
+            app.MapControllers();
+
+
+//éxécution de l'application
+              app.Run();
+             
 
     internal class Options
     {
     }
-}
+
+

@@ -1,24 +1,36 @@
+ï»¿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Domain;
-namespace P7CreateRestApi.Data
 
+namespace P7CreateRestApi.Data
 {
-    public class LocalDbContext : DbContext
+    public class LocalDbContext : IdentityDbContext
     {
+
         public LocalDbContext(DbContextOptions<LocalDbContext> options) : base(options) { }
 
-        public DbSet<BidList>? BidLists { get; set; } // Assurez-vous que la classe BidList correspond à votre table BidLists
-        public DbSet<CurvePoint>? CurvePointss { get; set; }
-        public DbSet<Rating>? Rating { get; set; }
-        public DbSet<RuleName>? RuleNames { get; set; }
-        public DbSet<Trade>? Trades { get; set; }
-        public DbSet<User>? User { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(builder);
+            SeedRoles(builder);
         }
 
-    }
-}
+        private static void SeedRoles(ModelBuilder builder)
+        {
+            builder.Entity<IdentityRole>().HasData
+                (
+                new IdentityRole() { Name = "Admin", ConcurrencyStamp = "1", NormalizedName = "Admin" },
+                new IdentityRole() { Name = "User", ConcurrencyStamp = "2", NormalizedName = "User" },
+                new IdentityRole() { Name = "RH", ConcurrencyStamp = "3", NormalizedName = "RH" }
+                );
+        }
+        public DbSet<User> User { get; set; }
+        public DbSet<BidList> BidLists { get; set; }
+        public DbSet<CurvePoints> CurvePoints { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
+        public DbSet<RuleName> RuleNames { get; set; }
+        public DbSet<Trade> Trades { get; set; }
 
+    }
+    }

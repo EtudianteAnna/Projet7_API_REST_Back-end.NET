@@ -47,34 +47,7 @@ namespace P7CreateRestApi.Controllers
 
         // PUT: api/RuleNames/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutRuleName(int id, RuleName ruleName)
-        {
-            if (id != ruleName.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(ruleName).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!RuleNameExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
+        
 
         // POST: api/RuleNames
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

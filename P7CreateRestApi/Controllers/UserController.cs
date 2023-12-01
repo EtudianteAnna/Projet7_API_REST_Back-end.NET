@@ -9,7 +9,7 @@ namespace P7CreateRestApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly IBidListRepository _repository;
-
+       
         public UserController(IBidListRepository repository)
         {
             _repository = repository;
@@ -70,10 +70,11 @@ namespace P7CreateRestApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteUserList(int id)
+        public async Task<IActionResult> DeleteUserList(int id)
         {
 
-            return Ok();
+            await _repository.DeleteAsync(id);
+            return NoContent();
         }
     }
     }

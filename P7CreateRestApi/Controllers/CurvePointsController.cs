@@ -19,9 +19,9 @@ namespace P7CreateRestApi.Controllers
         }               
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CurvePoint>> GetCurvePoint(int id)
+        public async Task<ActionResult<CurvePoints>> GetCurvePoint(int id)
         {
-            if (_context.CurvePointss == null)
+            if (_context.CurvePoints == null)
             {
                 return NotFound();
             }
@@ -37,7 +37,7 @@ namespace P7CreateRestApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCurvePoint(int id, CurvePoint curvePoint)
+        public async Task<IActionResult> PutCurvePoint(int id, CurvePoints curvePoint)
         {
             if (id != curvePoint.Id)
             {
@@ -50,9 +50,9 @@ namespace P7CreateRestApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CurvePoint>> PostCurvePoint(CurvePoint curvePoint)
+        public async Task<ActionResult<CurvePoints>> PostCurvePoint(CurvePoints curvePoint)
         {
-            if (_context.CurvePointss == null)
+            if (_context.CurvePoints == null)
             {
                 return Problem("Entity set 'LocalDbContext.CurvePoints' is null.");
             }
@@ -65,7 +65,7 @@ namespace P7CreateRestApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCurvePoint(int id)
         {
-            if (_context.CurvePointss == null)
+            if (_context.CurvePoints == null)
             {
                 return NotFound();
             }
@@ -82,10 +82,7 @@ namespace P7CreateRestApi.Controllers
             return NoContent();
         }
 
-        private bool CurvePointExists(int id)
-        {
-            return (_context.CurvePointss?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
+       
     }
 }
 

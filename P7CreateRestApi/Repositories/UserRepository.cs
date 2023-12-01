@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
-using Microsoft.EntityFrameworkCore;
-
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace P7CreateRestApi.Repositories
 {
@@ -17,45 +18,34 @@ namespace P7CreateRestApi.Repositories
 
         public async Task<IEnumerable<User>> GetAllAsync()
         {
-            IQueryable<User> query = _context.User;
-
-            // Ajouter la vérification pour éviter CS8604
-            if (query != null)
-            {
-                return await query.ToListAsync();
-            }
-            else
-            {
-                // Retourner une liste vide ou gérer le cas où la source est nulle selon vos besoins
-                return await _context.User.ToListAsync();
-
-            }
+            return await _context.Users.ToListAsync();
         }
-            public async Task<User> GetByIdAsync(int id)
-            {
-                return await _context.User.FindAsync(id);
-            }
 
-            public async Task AddAsync(User user)
+        public async Task<User> GetByIdAsync(int id)
+        {
+            return await _context.Users.FindAsync(id);
+        }
+
+        public async Task AddAsync(User user)
+        {
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(User user)
+        {
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user != null)
             {
-                _context.User.Add(user);
+                _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
-            }
-
-            public async Task UpdateAsync(User user)
-            {
-                await _context.SaveChangesAsync();
-            }
-
-            public async Task DeleteAsync(int id)
-            {
-                var rating = await _context.User.FindAsync(id);
-                if (rating != null)
-                {
-                    _context.User.Remove(rating);
-                    await _context.SaveChangesAsync();
-                }
             }
         }
     }
-
+}

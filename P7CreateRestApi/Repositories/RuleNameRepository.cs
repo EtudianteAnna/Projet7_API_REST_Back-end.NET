@@ -1,61 +1,50 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
-using Microsoft.EntityFrameworkCore;
 
 namespace P7CreateRestApi.Repositories
 {
     public class RuleNameRepository : IRuleNameRepository
     {
         private readonly LocalDbContext _context;
-
         public RuleNameRepository(LocalDbContext context)
+
         {
             _context = context;
         }
 
         public async Task<IEnumerable<RuleName>> GetAllAsync()
         {
-            IQueryable<RuleName> query = _context.RuleNames;
 
-            // Ajouter la vérification pour éviter CS8604
-            if (query != null)
+            return await _context.RuleNames.ToListAsync();
+        }
+            public async Task<RuleName> GetByIdAsync(int id)
             {
-                return await query.ToListAsync();
+                return await _context.RuleNames.FindAsync(id);
             }
-            else
+
+            public async Task AddAsync(RuleName ruleName)
             {
-                // Retourner une liste vide ou gérer le cas où la source est nulle selon vos besoins
-                return new List<RuleName>();
-            }
-        }
-
-        public async Task<RuleName> GetByIdAsync(int id)
-        {
-            return await _context.RuleNames.FindAsync(id);
-        }
-
-        public async Task AddAsync(RuleName ruleName)
-        {
-            _context.RuleNames.Add(ruleName);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task UpdateAsync(RuleName ruleName)
-        {
-            _context.RuleNames.Update(ruleName);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            var ruleName = await _context.RuleNames.FindAsync(id);
-            if (ruleName != null)
-            {
-                _context.RuleNames.Remove(ruleName);
+                _context.RuleNames.Add(ruleName);
                 await _context.SaveChangesAsync();
+            }
+
+            public async Task UpdateAsync(RuleName ruleName)
+            {
+                _context.RuleNames.Update(ruleName);
+                await _context.SaveChangesAsync();
+            }
+
+            public async Task DeleteAsync(int id)
+            {
+                var ruleName = await _context.RuleNames.FindAsync(id);
+                if (ruleName != null)
+                {
+                    _context.RuleNames.Remove(ruleName);
+                    await _context.SaveChangesAsync();
+                }
             }
         }
     }
-}
+
     

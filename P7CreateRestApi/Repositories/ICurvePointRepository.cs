@@ -4,9 +4,9 @@ namespace P7CreateRestApi.Repositories
 {
     public interface ICurvePointRepository
     {
-        Task<CurvePoint> GetByIdAsync(int id);
-        Task AddAsync(CurvePoint curvePoint);
-        Task UpdateAsync(CurvePoint curvePoint);
+        Task<CurvePoints> GetByIdAsync(int id);
+        Task AddAsync(CurvePoints curvePoint);
+        Task UpdateAsync(CurvePoints curvePoint);
         Task DeleteAsync(int id);
     }
 }
