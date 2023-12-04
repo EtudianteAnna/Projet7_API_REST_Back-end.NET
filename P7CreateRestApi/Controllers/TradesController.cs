@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
+using P7CreateRestApi.Repositories;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -10,10 +11,24 @@ namespace P7CreateRestApi.Controllers
     public class TradesController : ControllerBase
     {
         private readonly LocalDbContext _context;
+        private ILogger<TradesController> object1;
+        private ITradeRepository object2;
+        private LocalDbContext object3;
 
-        public TradesController(LocalDbContext context)
+        public TradesController(ILogger<TradesController> @object, LocalDbContext context)
         {
             _context = context;
+        }
+
+        public TradesController(ILogger<TradesController> object1, ITradeRepository object2, LocalDbContext object3)
+        {
+            this.object1 = object1;
+            this.object2 = object2;
+            this.object3 = object3;
+        }
+
+        public TradesController(LocalDbContext @object)
+        {
         }
 
         // GET: api/Trades

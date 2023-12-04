@@ -6,11 +6,11 @@ namespace P7CreateRestApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class BidListsController : ControllerBase
     {
         private readonly IBidListRepository _repository;
 
-        public UsersController(IBidListRepository repository)
+        public BidListsController(IBidListRepository repository)
         {
             _repository = repository;
         }
@@ -60,9 +60,10 @@ namespace P7CreateRestApi.Controllers
             {
                 await _repository.AddAsync(bidList);
             }
-            catch(Exception )
+            catch(Exception ex )
             {
-
+                //Log de l'exception 
+                Console.WriteLine("Une erreur s'est produite lors de l'ajout:{ex:.Message}");
             }
            
 

@@ -25,7 +25,13 @@ namespace P7CreateRestApi.Data
                 new IdentityRole() { Name = "RH", ConcurrencyStamp = "3", NormalizedName = "RH" }
                 );
         }
-        public  DbSet<User> Users { get; set; }
+        public DbSet<User> Users { get; set; }
+
+        public LocalDbContext(DbSet<User> users)
+        {
+            Users = users;
+        }
+
         public DbSet<BidList> BidLists { get; set; }
         public DbSet<CurvePoints> CurvePoints { get; set; }
         public DbSet<Rating> Ratings { get; set; }
@@ -33,4 +39,5 @@ namespace P7CreateRestApi.Data
         public DbSet<Trade> Trades { get; set; }
 
     }
+
     }
