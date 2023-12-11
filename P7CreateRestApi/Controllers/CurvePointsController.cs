@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
 using P7CreateRestApi.Repositories;
-
 
 namespace P7CreateRestApi.Controllers
 {
@@ -10,23 +8,23 @@ namespace P7CreateRestApi.Controllers
     [ApiController]
     public class CurvePointsController : ControllerBase
     {
-        private readonly LocalDbContext _context;
         private readonly ICurvePointRepository _curvePointRepository;
+        private readonly ILogger<CurvePointsController> _logger;
 
-        public CurvePointsController(LocalDbContext context, ICurvePointRepository curvePointRepository)
+        public CurvePointsController(ICurvePointRepository curvePointRepository)
         {
-            _context = context;
             _curvePointRepository = curvePointRepository;
-        }               
+        }
+
+        public CurvePointsController(ILogger<CurvePointsController> logger, ICurvePointRepository curvePointRepository)
+            : this(curvePointRepository)
+        {
+            _logger = logger;
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<CurvePoints>> GetCurvePoint(int id)
         {
-            if (_context.CurvePoints == null)
-            {
-                return NotFound();
-            }
-
             var curvePoint = await _curvePointRepository.GetByIdAsync(id);
 
             if (curvePoint == null)
@@ -53,12 +51,20 @@ namespace P7CreateRestApi.Controllers
         [HttpPost]
         public async Task<ActionResult<CurvePoints>> PostCurvePoint(CurvePoints curvePoint)
         {
-            if (_context.CurvePoints == null)
+            if (curvePoint == null)
             {
-                return Problem("Entity set 'LocalDbContext.CurvePoints' is null.");
+                return BadRequest(); // Retourne un résultat BadRequest si curvePoint est null
             }
 
-            await _curvePointRepository.AddAsync(curvePoint);
+            try
+            {
+                await _curvePointRepository.AddAsync(curvePoint);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError($"Une erreur est survenue lors de l'ajout de la ressource : {ex.Message}");
+                return Problem("Une erreur est survenue lors de l'ajout de la ressource.", statusCode: 500);
+            }
 
             return CreatedAtAction("GetCurvePoint", new { id = curvePoint.Id }, curvePoint);
         }
@@ -66,11 +72,6 @@ namespace P7CreateRestApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCurvePoint(int id)
         {
-            if (_context.CurvePoints == null)
-            {
-                return NotFound();
-            }
-
             var curvePoint = await _curvePointRepository.GetByIdAsync(id);
 
             if (curvePoint == null)
@@ -82,8 +83,5 @@ namespace P7CreateRestApi.Controllers
 
             return NoContent();
         }
-
-       
     }
 }
-

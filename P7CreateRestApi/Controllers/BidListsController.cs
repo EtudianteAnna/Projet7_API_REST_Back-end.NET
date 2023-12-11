@@ -10,11 +10,21 @@ namespace P7CreateRestApi.Controllers
     {
         private readonly IBidListRepository _repository;
 
+        public ILogger<BidListsController> Object1 { get; }
+        public IBidListRepository Object2 { get; }
+
         public BidListsController(IBidListRepository repository)
         {
             _repository = repository;
         }
 
+        public BidListsController(ILogger<BidListsController> object1, IBidListRepository object2)
+        {
+            Object1 = object1;
+            Object2 = object2;
+        }
+
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BidList>>> GetBidLists()
         {

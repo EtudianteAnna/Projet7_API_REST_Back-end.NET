@@ -63,7 +63,7 @@ namespace P7CreateRestApi.Controllers
         // PUT: api/Trades/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTrade(int id, Trade trade)
+        public async Task<IActionResult> PostTrade(int id, Trade trade)
         {
             if (id != trade.TradeId)
             {
@@ -131,6 +131,11 @@ namespace P7CreateRestApi.Controllers
         private bool TradeExists(int id)
         {
             return (_context.Trades?.Any(e => e.TradeId == id)).GetValueOrDefault();
+        }
+
+        public Task PutTrade(int id, Trade trade)
+        {
+            throw new NotImplementedException();
         }
     }
 }

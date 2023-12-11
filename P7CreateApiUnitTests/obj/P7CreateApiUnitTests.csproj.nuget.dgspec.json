@@ -45,14 +45,6 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
-            "MSTest.TestAdapter": {
-              "target": "Package",
-              "version": "[2.2.10, )"
-            },
-            "MSTest.TestFramework": {
-              "target": "Package",
-              "version": "[2.2.10, )"
-            },
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
               "version": "[17.5.0, )"
@@ -66,10 +58,6 @@
               "version": "[3.2.0, )"
             },
             "xunit": {
-              "target": "Package",
-              "version": "[2.6.2, )"
-            },
-            "xunit.assert": {
               "target": "Package",
               "version": "[2.6.2, )"
             }
