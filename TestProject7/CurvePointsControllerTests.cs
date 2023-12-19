@@ -100,6 +100,27 @@ namespace TestProject7
             mockRepository.Verify(repo => repo.GetByIdAsync(id), Times.Once);
             mockRepository.Verify(repo => repo.DeleteAsync(id), Times.Once);
         }
+        [Fact]
+        public async Task DeleteCurvePointWithInvalidIdReturnsNotFound()
+        {
+            // Arrange
+            var mockLogger = new Mock<ILogger<CurvePointsController>>();
+            var mockRepository = new Mock<ICurvePointRepository>();
+            var controller = new CurvePointsController(mockLogger.Object, mockRepository.Object);
+
+            int id = 1;
+            mockRepository.Setup(repo => repo.GetByIdAsync(id)).ReturnsAsync(()=> null);
+
+            // Act
+            var result = await controller.DeleteCurvePoint(id);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+
+            // Ensure that the repository GetByIdAsync and DeleteAsync methods were called with the correct ID
+            mockRepository.Verify(repo => repo.GetByIdAsync(id), Times.Once);
+            mockRepository.Verify(repo => repo.DeleteAsync(id), Times.Never);
+        }
     }
 }
 

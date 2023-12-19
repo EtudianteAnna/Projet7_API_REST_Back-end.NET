@@ -9,5 +9,6 @@ namespace P7CreateRestApi.Repositories
         Task AddAsync(User user);
         Task UpdateAsync(User user);
         Task DeleteAsync(int id);
+        Task<User> GetUserByCredentialsAsync(string userName, string password);
     }
 }

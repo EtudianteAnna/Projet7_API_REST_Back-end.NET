@@ -1,96 +1,102 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Domain;
 using P7CreateRestApi.Repositories;
 
-namespace P7CreateRestApi.Controllers
+namespace Dot.Net.WebApi.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class BidListsController : ControllerBase
     {
-        private readonly IBidListRepository _repository;
+        private readonly IBidListRepository _bidListRepository;
+        private readonly ILogger<BidListsController> _logger;
 
-        public ILogger<BidListsController> Object1 { get; }
-        public IBidListRepository Object2 { get; }
-
-        public BidListsController(IBidListRepository repository)
+        public BidListsController(ILogger<BidListsController> logger, IBidListRepository bidListRepository)
         {
-            _repository = repository;
-        }
-
-        public BidListsController(ILogger<BidListsController> object1, IBidListRepository object2)
-        {
-            Object1 = object1;
-            Object2 = object2;
-        }
-
-        
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<BidList>>> GetBidLists()
-        {
-            var bidLists = await _repository.GetBidListsAsync();
-            if (bidLists == null || !bidLists.Any())
-            {
-                return NotFound(); // retour erreur 404
-            }
-
-            return Ok(bidLists); // retour 200
+            _logger = logger;
+            _bidListRepository = bidListRepository;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<BidList>> GetBidList(int id)
+        [Authorize(Roles = "Admin, RH, User")]
+        [ProducesResponseType(StatusCodes.Status200OK)] // OK
+        [ProducesResponseType(StatusCodes.Status404NotFound)] // Not Found
+        public async Task<IActionResult> Get(int id)
         {
-            var bidList = await _repository.GetByIdAsync(id);
+            _logger.LogInformation($"Récupération de la liste d'offres avec l'ID : {id}");
 
+            var bidList = await _bidListRepository.GetByIdAsync(id);
             if (bidList == null)
             {
+                _logger.LogWarning($"Liste d'offres avec l'ID {id} non trouvée");
                 return NotFound();
             }
 
+            _logger.LogInformation($"Liste d'offres avec l'ID {id} récupérée avec succès");
             return Ok(bidList);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutBidList(int id, BidList bidList)
-        {
-            if (id != bidList.BidListId)
-            {
-                return BadRequest();
-            }
-
-            await _repository.UpdateAsync(bidList);
-
-            return NoContent();
-        }
-
         [HttpPost]
-        public async Task<ActionResult<BidList>> PostBidList(BidList bidList)
+        [ProducesResponseType(StatusCodes.Status201Created)] // Created
+        [ProducesResponseType(StatusCodes.Status400BadRequest)] // Bad Request
+        public async Task<IActionResult> Post([FromBody] BidList bidList)
         {
             try
             {
-                await _repository.AddAsync(bidList);
-            }
-            catch(Exception ex )
-            {
-                //Log de l'exception 
-                Console.WriteLine("Une erreur s'est produite lors de l'ajout:{ex:.Message}");
-            }
-           
+                _logger.LogInformation("Ajout d'une nouvelle liste d'offres");
 
-            return CreatedAtAction(nameof(GetBidList), new { id = bidList.BidListId }, bidList);
+               if (!ModelState.IsValid)
+                {
+                    _logger.LogError("Modèle invalideb lors de l'ajout de la liste d'offres");
+                    return BadRequest(ModelState);
+                
+                }
+                await _bidListRepository.AddAsync(bidList);
+
+                _logger.LogInformation($"Liste d'offres ajoutée avec succès. ID de la liste d'offres : {bidList.BidListId}");
+
+                return CreatedAtAction(nameof(Get), new { id = bidList.BidListId }, bidList);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erreur lors de l'ajout de la liste d'offres : {ex.Message}");
+                return BadRequest();
+            }
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin, RH")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)] // No Content
+        [ProducesResponseType(StatusCodes.Status400BadRequest)] // Bad Request
+        public async Task<IActionResult> Put(int id, [FromBody] BidList bidList)
+        {
+            _logger.LogInformation($"Mise à jour de la liste d'offres avec l'ID : {id}");
+
+            if (id != bidList.BidListId)
+            {
+                _logger.LogError("Incompatibilité dans les ID de liste d'offres. Requête incorrecte.");
+                return BadRequest();
+            }
+
+            await _bidListRepository.UpdateAsync(bidList);
+
+            _logger.LogInformation($"Liste d'offres avec l'ID {id} mise à jour avec succès");
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBidList(int id)
+        [Authorize(Roles = "Admin, RH")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)] // No Content
+        [ProducesResponseType(StatusCodes.Status404NotFound)] // Not Found
+        public async Task<IActionResult> Delete(int id)
         {
-            var bidList = await _repository.GetByIdAsync(id);
-            if (bidList == null)
-            {
-                return NotFound();
-            }
+            _logger.LogInformation($"Tentative d'élimination � {DateTime.Now} de la liste d'offres avec l'ID {id}");
 
-            await _repository.DeleteAsync(id);
+            await _bidListRepository.DeleteAsync(id);
 
+            _logger.LogInformation($"Liste d'offres avec l'ID {id} supprimée avec succès");
             return NoContent();
         }
     }

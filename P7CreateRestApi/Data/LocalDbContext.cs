@@ -27,11 +27,7 @@ namespace P7CreateRestApi.Data
         }
         public DbSet<User> Users { get; set; }
 
-        public LocalDbContext(DbSet<User> users)
-        {
-            Users = users;
-        }
-
+        
         public DbSet<BidList> BidLists { get; set; }
         public DbSet<CurvePoints> CurvePoints { get; set; }
         public DbSet<Rating> Ratings { get; set; }

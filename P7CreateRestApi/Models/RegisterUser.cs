@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace P7CreateRestApi.Models
+namespace P7CreateRestApi.Controllers
 {
     public class RegisterUser
     {

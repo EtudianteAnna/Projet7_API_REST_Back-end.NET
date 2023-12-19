@@ -1,129 +1,115 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Moq.EntityFrameworkCore;
-using P7CreateRestApi.Controllers;
-using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
+using P7CreateRestApi.Repositories;
 
 namespace TestProject7
-{ 
-
-    public class RuleNamesControllerTests
+{
+    public class RuleNameControllerTests
     {
         [Fact]
-        public async Task GetRuleNamesReturnsRuleNames()
+        public async Task Get_ReturnsCorrectRuleName()
         {
             // Arrange
-            var mockLogger = new Mock<ILogger<RuleNamesController>>();
-            var mockContext = new Mock<LocalDbContext>();
-            var controller = new RuleNamesController(mockContext.Object);
+            var mockRepository = new Mock<IRuleNameRepository>();
+            var expectedRuleName = new RuleName { Id = 1, /* other properties */ };
+            mockRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<int>()))
+                          .ReturnsAsync(expectedRuleName);
 
-            var ruleNames = new List<RuleName> { /* initialize rule names */ };
-            mockContext.Setup(c => c.RuleNames).ReturnsDbSet(ruleNames);
+            var loggerMock = new Mock<ILogger<RuleNameController>>();
+
+            var controller = new RuleNameController(loggerMock.Object, mockRepository.Object);
 
             // Act
-            var result = await controller.GetRuleNames();
+            var actionResult = await controller.Get(expectedRuleName.Id);
 
             // Assert
-            var actionResult = Assert.IsType<ActionResult<IEnumerable<RuleName>>>(result);
-            var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-            var model = Assert.IsType<List<RuleName>>(okResult.Value);
-            Assert.Equal(ruleNames.Count, model.Count);
+            // Utiliser la méthode As<T> de Microsoft.AspNetCore.Mvc pour obtenir le résultat
+            var okResult = actionResult.As<OkObjectResult>();
+            var returnedRuleName = Assert.IsAssignableFrom<RuleName>(okResult.Value);
+            Assert.Equal(expectedRuleName.Id, returnedRuleName.Id);
         }
-
         [Fact]
-        public async Task GetRuleNameReturnsRuleName()
+        public async Task Post_ReturnsCreatedAtAction()
         {
             // Arrange
-            var mockLogger = new Mock<ILogger<RuleNamesController>>();
-            var mockContext = new Mock<LocalDbContext>();
-            var controller = new RuleNamesController(mockContext.Object);
+            var mockRepository = new Mock<IRuleNameRepository>();
+            var loggerMock = new Mock<ILogger<RuleNameController>>();
 
-            var ruleName = new RuleName { /* initialize rule name */ };
-            mockContext.Setup(c => c.RuleNames.Find(It.IsAny<int>())).Returns(ruleName);
+            var controller = new RuleNameController(loggerMock.Object, mockRepository.Object);
 
-            // Act
-            var result = await controller.GetRuleName(1);
-
-            // Assert
-            var actionResult = Assert.IsType<ActionResult<RuleName>>(result);
-            var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-            var model = Assert.IsType<RuleName>(okResult.Value);
-            Assert.Equal(ruleName.Id, model.Id);
-        }
-
-        [Fact]
-        public async Task PostRuleNameReturnsCreatedAtActionWhenAddSuccessful()
-        {
-            // Arrange
-            var mockLogger = new Mock<ILogger<RuleNamesController>>();
-            var mockContext = new Mock<LocalDbContext>();
-            var controller = new RuleNamesController(mockContext.Object);
-
-            var ruleName = new RuleName { /* initialize rule name */ };
-
-            mockContext.Setup(c => c.RuleNames.Add(It.IsAny<RuleName>()));
-            mockContext.Setup(c => c.SaveChangesAsync(default)).ReturnsAsync(1); // Utilisez It.IsAny<CancellationToken>() si nécessaire
+            var ruleNameToCreate = new RuleName { /* set properties */ };
 
             // Act
-            var result = await controller.PostRuleName(ruleName);
+            var result = await controller.Post(ruleNameToCreate);
 
             // Assert
             var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
-            var model = Assert.IsType<RuleName>(createdAtActionResult.Value);
-            mockContext.Verify(c => c.RuleNames.Add(It.IsAny<RuleName>()), Times.Once);
-            mockContext.Verify(c => c.SaveChangesAsync(default(CancellationToken)), Times.Once);
+
+            Assert.Equal(StatusCodes.Status201Created, createdAtActionResult.StatusCode);
+            Assert.Equal(nameof(controller.Get), createdAtActionResult.ActionName);
+            // Add more assertions based on your specific requirements
         }
-
-
 
         [Fact]
-        public async Task DeleteRuleNameReturnsNoContentWhenDeleteSuccessful()
+        public async Task Put_ReturnsNoContent()
         {
             // Arrange
-            var mockLogger = new Mock<ILogger<RuleNamesController>>();
-            var mockContext = new Mock<LocalDbContext>();
-            var controller = new RuleNamesController(mockContext.Object);
+            var mockRepository = new Mock<IRuleNameRepository>();
+            var loggerMock = new Mock<ILogger<RuleNameController>>();
 
-            var ruleName = new RuleName { /* initialize rule name */ };
+            var controller = new RuleNameController(loggerMock.Object, mockRepository.Object);
 
-            // Configure the DbSet property on the context to return a DbSet with the ruleName
-            var mockDbSet = new Mock<DbSet<RuleName>>();
-            mockDbSet.Setup(d => d.FindAsync(It.IsAny<int>())).ReturnsAsync(ruleName);
-            mockContext.Setup(c => c.RuleNames).Returns(mockDbSet.Object);
+            var existingRuleName = new RuleName { Id = 1, /* other properties */ };
+            var ruleNameToUpdate = new RuleName { Id = 1, /* updated properties */ };
 
-            mockContext.Setup(c => c.RuleNames.Remove(It.IsAny<RuleName>()));
+            mockRepository.Setup(repo => repo.UpdateAsync(It.IsAny<RuleName>()))
+                .Callback<RuleName>(updatedRuleName =>
+                {
+                    // Verify that the UpdateAsync method was called with the correct parameters
+                    Assert.Equal(ruleNameToUpdate.Id, updatedRuleName.Id);
 
-            mockContext.Setup(c => c.SaveChangesAsync(default(CancellationToken))).ReturnsAsync(1); // Utilisez It.IsAny<CancellationToken>() si nécessaire
+                })
+                .Returns(Task.CompletedTask);
 
             // Act
-            var result = await controller.DeleteRuleName(1);
+            var result = await controller.Put(1, ruleNameToUpdate);
 
             // Assert
-            Assert.IsType<NoContentResult>(result);
-            mockContext.Verify(c => c.RuleNames.Remove(It.IsAny<RuleName>()), Times.Once);
-            mockContext.Verify(c => c.SaveChangesAsync(default(CancellationToken)), Times.Once);
+            var noContentResult = Assert.IsType<NoContentResult>(result);
+
+            Assert.Equal(StatusCodes.Status204NoContent, noContentResult.StatusCode);
         }
-
-
-
-
-        // Add more test methods as needed
-
-        private class DbSetMock<TEntity> : Mock<DbSet<TEntity>> where TEntity : class
+            [Fact]
+        public async Task DeleteReturnsNoContent()
         {
-            public static DbSet<TEntity> Create(List<TEntity> data)
-            {
-                var queryable = data.AsQueryable();
-                var dbSetMock = new DbSetMock<TEntity>();
-                dbSetMock.As<IQueryable<TEntity>>().Setup(m => m.Provider).Returns(queryable.Provider);
-                dbSetMock.As<IQueryable<TEntity>>().Setup(m => m.Expression).Returns(queryable.Expression);
-                dbSetMock.As<IQueryable<TEntity>>().Setup(m => m.ElementType).Returns(queryable.ElementType);
-                dbSetMock.As<IQueryable<TEntity>>().Setup(m => m.GetEnumerator()).Returns(() => queryable.GetEnumerator());
-                return dbSetMock.Object;
-            }
+            // Arrange
+            var mockRepository = new Mock<IRuleNameRepository>();
+            var loggerMock = new Mock<ILogger<RuleNameController>>();
+
+            var controller = new RuleNameController(loggerMock.Object, mockRepository.Object);
+
+            var ruleNameIdToDelete = 1;
+
+            mockRepository.Setup(repo => repo.DeleteAsync(It.IsAny<int>()))
+                .Callback<int>(id =>
+                {
+                    // Verify that the DeleteAsync method was called with the correct parameter
+                    Assert.Equal(ruleNameIdToDelete, id);
+
+                })
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await controller.Delete(ruleNameIdToDelete);
+
+            // Assert
+            var noContentResult = Assert.IsType<NoContentResult>(result);
+            Assert.Equal(StatusCodes.Status204NoContent, noContentResult.StatusCode);
         }
     }
 }
+

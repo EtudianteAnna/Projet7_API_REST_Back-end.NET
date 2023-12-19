@@ -1,141 +1,106 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using P7CreateRestApi.Data;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Domain;
 using P7CreateRestApi.Repositories;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Common;
 
-namespace P7CreateRestApi.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class TradeController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class TradesController : ControllerBase
+    private readonly ITradeRepository _tradeRepository;
+    private readonly ILogger<TradeController> _logger;
+
+    public TradeController(ILogger<TradeController> logger, ITradeRepository tradeRepository)
     {
-        private readonly LocalDbContext _context;
-        private ILogger<TradesController> object1;
-        private ITradeRepository object2;
-        private LocalDbContext object3;
+        _logger = logger;
+        _tradeRepository = tradeRepository;
+    }
 
-        public TradesController(ILogger<TradesController> @object, LocalDbContext context)
+    [HttpGet("{id}")]
+    [Authorize(Roles = "Admin, RH, User")]
+    [ProducesResponseType(StatusCodes.Status200OK)] // OK
+    [ProducesResponseType(StatusCodes.Status404NotFound)] // Not Found
+    public async Task<IActionResult> Get(int id)
+    {
+        _logger.LogInformation($"R�cup�ration de la transaction avec l'ID : {id}");
+
+        var trade = await _tradeRepository.GetByIdAsync(id);
+        if (trade == null)
         {
-            _context = context;
+            _logger.LogWarning($"Transaction avec l'ID {id} non trouv�e");
+            return NotFound();
         }
 
-        public TradesController(ILogger<TradesController> object1, ITradeRepository object2, LocalDbContext object3)
+        _logger.LogInformation($"Transaction avec l'ID {id} r�cup�r�e avec succ�s");
+        return Ok(trade);
+    }
+
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)] // Created
+    [ProducesResponseType(StatusCodes.Status400BadRequest)] // Bad Request
+    public async Task<IActionResult> Post([FromBody] Trade trade)
+    {
+        try
         {
-            this.object1 = object1;
-            this.object2 = object2;
-            this.object3 = object3;
+            _logger.LogInformation("Ajout d'une nouvelle transaction");
+
+            await _tradeRepository.AddAsync(trade);
+
+            _logger.LogInformation($"Transaction ajoutée avec succès. ID de la transaction : {trade.TradeId}");
+
+            return CreatedAtAction(nameof(Get), new { id = trade.TradeId }, trade);
+        }
+        catch (DbException ex)
+        {
+            _logger.LogError($"Erreur de base de données lors de l'ajout de la transaction : {ex.Message}");
+            return BadRequest("Une erreur de base de données est survenue lors de l'ajout de la transaction.");
+        }
+        catch (ValidationException ex)
+        {
+            _logger.LogError($"Erreur de validation lors de l'ajout de la transaction : {ex.Message}");
+            return BadRequest("Une erreur de validation est survenue lors de l'ajout de la transaction.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Une erreur inattendue est survenue lors de l'ajout de la transaction : {ex.Message}");
+            return BadRequest("Une erreur inattendue est survenue lors de l'ajout de la transaction.");
+        }
+    }
+
+
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin, RH")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)] // No Content
+    [ProducesResponseType(StatusCodes.Status400BadRequest)] // Bad Request
+    public async Task<IActionResult> Put(int id, [FromBody] Trade trade)
+    {
+        _logger.LogInformation($"Mise � jour de la transaction avec l'ID : {id}");
+
+        if (id != trade.TradeId)
+        {
+            _logger.LogError("Incompatibilit� dans les ID de transaction. Requ�te incorrecte.");
+            return BadRequest();
         }
 
-        public TradesController(LocalDbContext @object)
-        {
-        }
+        await _tradeRepository.UpdateAsync(trade);
 
-        // GET: api/Trades
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Trade>>> GetTrades()
-        {
-          if (_context.Trades == null)
-          {
-              return NotFound();
-          }
-            return await _context.Trades.ToListAsync();
-        }
+        _logger.LogInformation($"Transaction avec l'ID {id} mise � jour avec succ�s");
+        return NoContent();
+    }
 
-        // GET: api/Trades/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Trade>> GetTrade(int id)
-        {
-          if (_context.Trades == null)
-          {
-              return NotFound();
-          }
-            var trade = await _context.Trades.FindAsync(id);
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin, RH")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)] // No Content
+    [ProducesResponseType(StatusCodes.Status404NotFound)] // Not Found
+    public async Task<IActionResult> Delete(int id)
+    {
+        _logger.LogInformation($"Suppression de la transaction avec l'ID : {id}");
 
-            if (trade == null)
-            {
-                return NotFound();
-            }
+        await _tradeRepository.DeleteAsync(id);
 
-            return trade;
-        }
-
-        // PUT: api/Trades/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PostTrade(int id, Trade trade)
-        {
-            if (id != trade.TradeId)
-            {
-                return BadRequest();
-            }
-
-            try
-            {
-                // Mettez ici la logique pour mettre à jour le Trade dans votre contexte ou autre moyen
-                object v = _context.Entry(trade);
-
-                ; await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TradeExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-
-        // POST: api/Trades
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Trade>> PostTrade(Trade trade)
-        {
-          if (_context.Trades == null)
-          {
-              return Problem("Entity set 'LocalDbContext.Trades'  is null.");
-          }
-            _context.Trades.Add(trade);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetTrade", new { id = trade.TradeId }, trade);
-        }
-
-        // DELETE: api/Trades/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTrade(int id)
-        {
-            if (_context.Trades == null)
-            {
-                return NotFound();
-            }
-            var trade = await _context.Trades.FindAsync(id);
-            if (trade == null)
-            {
-                return NotFound();
-            }
-
-            _context.Trades.Remove(trade);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool TradeExists(int id)
-        {
-            return (_context.Trades?.Any(e => e.TradeId == id)).GetValueOrDefault();
-        }
-
-        public Task PutTrade(int id, Trade trade)
-        {
-            throw new NotImplementedException();
-        }
+        _logger.LogInformation($"Transaction avec l'ID {id} supprim�e avec succ�s");
+        return NoContent();
     }
 }

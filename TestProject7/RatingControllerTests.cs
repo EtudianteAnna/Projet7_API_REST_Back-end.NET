@@ -1,11 +1,9 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using P7CreateRestApi.Controllers;
 using P7CreateRestApi.Domain;
-using Xunit;
+
 
 namespace TestProject7
 {

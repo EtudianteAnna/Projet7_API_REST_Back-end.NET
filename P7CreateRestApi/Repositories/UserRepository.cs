@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
+using System.Security.Cryptography.X509Certificates;
 
 namespace P7CreateRestApi.Repositories
 {
@@ -39,10 +40,19 @@ namespace P7CreateRestApi.Repositories
         {
             var user = await _context.Users.FindAsync(id);
             if (user != null)
+
             {
                 _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
             }
+
+                      
+        }
+        public async Task<User> GetUserByCredentialsAsync(string userName, string password)
+        {
+            return  await _context.Users
+                .FirstOrDefaultAsync(u => u.UserName == userName && u.Password == password);
+
         }
     }
 }
