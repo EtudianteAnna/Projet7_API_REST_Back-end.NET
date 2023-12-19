@@ -1,92 +1,86 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using P7CreateRestApi.Data;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Domain;
+using P7CreateRestApi.Repositories;
 
-namespace P7CreateRestApi.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class RuleNameController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class RuleNamesController : ControllerBase
+    private readonly IRuleNameRepository _ruleNameRepository;
+    private readonly ILogger<RuleNameController> _logger;
+
+    public RuleNameController(ILogger<RuleNameController> logger, IRuleNameRepository ruleNameRepository)
     {
-        private readonly LocalDbContext _context;
+        _logger = logger;
+        _ruleNameRepository = ruleNameRepository;
+    }
 
-        public RuleNamesController(LocalDbContext context)
+    [HttpGet("{id}")]
+    [Authorize(Roles = "Admin, RH, User")]
+    [ProducesResponseType(StatusCodes.Status200OK)] // OK
+    [ProducesResponseType(StatusCodes.Status404NotFound)] // Not Found
+    public async Task<IActionResult> Get(int id)
+    {
+        _logger.LogInformation($"Récupération du nom de règle avec l'ID : {id}");
+
+        var ruleName = await _ruleNameRepository.GetByIdAsync(id);
+        if (ruleName == null)
         {
-            _context = context;
+            _logger.LogWarning($"Nom de règle avec l'ID {id} non trouv�");
+            return NotFound();
         }
 
-        // GET: api/RuleNames
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<RuleName>>> GetRuleNames()
+        _logger.LogInformation($"Nom de règle avec l'ID {id} récupère avec succès");
+        return Ok(ruleName);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin, RH")]
+    [ProducesResponseType(StatusCodes.Status201Created)] // Created
+    [ProducesResponseType(StatusCodes.Status400BadRequest)] // Bad Request
+    public async Task<IActionResult> Post([FromBody] RuleName ruleName)
+    {
+        _logger.LogInformation("Ajout d'un nouveau nom de r�gle");
+
+        await _ruleNameRepository.AddAsync(ruleName);
+
+        _logger.LogInformation($"Nom de r�gle ajout� avec succ�s. ID du nom de r�gle : {ruleName.Id}");
+
+        return CreatedAtAction(nameof(Get), new { id = ruleName.Id }, ruleName);
+    }
+
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin, RH")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)] // No Content
+    [ProducesResponseType(StatusCodes.Status400BadRequest)] // Bad Request
+    public async Task<IActionResult> Put(int id, [FromBody] RuleName ruleName)
+    {
+        _logger.LogInformation($"Mise � jour du nom de r�gle avec l'ID : {id}");
+
+        if (id != ruleName.Id)
         {
-          if (_context.RuleNames == null)
-          {
-              return NotFound();
-          }
-            return await _context.RuleNames.ToListAsync();
+            _logger.LogError("Incompatibilit� dans les ID de nom de r�gle. Requ�te incorrecte.");
+            return BadRequest();
         }
 
-        // GET: api/RuleNames/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<RuleName>> GetRuleName(int id)
-        {
-          if (_context.RuleNames == null)
-          {
-              return NotFound();
-          }
-            var ruleName = await _context.RuleNames.FindAsync(id);
+        await _ruleNameRepository.UpdateAsync(ruleName);
 
-            if (ruleName == null)
-            {
-                return NotFound();
-            }
+        _logger.LogInformation($"Nom de r�gle avec l'ID {id} mis � jour avec succ�s");
+        return NoContent();
+    }
 
-            return ruleName;
-        }
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin, RH")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)] // No Content
+    [ProducesResponseType(StatusCodes.Status404NotFound)] // Not Found
+    public async Task<IActionResult> Delete(int id)
+    {
+        _logger.LogInformation($"Suppression du nom de r�gle avec l'ID : {id}");
 
-        // PUT: api/RuleNames/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        
+        await _ruleNameRepository.DeleteAsync(id);
 
-        // POST: api/RuleNames
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<RuleName>> PostRuleName(RuleName ruleName)
-        {
-          if (_context.RuleNames == null)
-          {
-              return Problem("Entity set 'LocalDbContext.RuleNames'  is null.");
-          }
-            _context.RuleNames.Add(ruleName);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetRuleName", new { id = ruleName.Id }, ruleName);
-        }
-
-        // DELETE: api/RuleNames/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRuleName(int id)
-        {
-            if (_context.RuleNames == null)
-            {
-                return NotFound();
-            }
-            var ruleName = await _context.RuleNames.FindAsync(id);
-            if (ruleName == null)
-            {
-                return NotFound();
-            }
-
-            _context.RuleNames.Remove(ruleName);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool RuleNameExists(int id)
-        {
-            return (_context.RuleNames?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
+        _logger.LogInformation($"Nom de r�gle avec l'ID {id} supprim� avec succ�s");
+        return NoContent();
     }
 }

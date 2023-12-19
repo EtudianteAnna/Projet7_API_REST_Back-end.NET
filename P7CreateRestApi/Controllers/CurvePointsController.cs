@@ -32,7 +32,7 @@ namespace P7CreateRestApi.Controllers
                 return NotFound();
             }
 
-            return curvePoint;
+            return Ok (curvePoint); //code 200
         }
 
         [HttpPut("{id}")]
@@ -42,7 +42,12 @@ namespace P7CreateRestApi.Controllers
             {
                 return BadRequest();
             }
+            var curvePointExist = await _curvePointRepository.GetByIdAsync(id);
 
+            if (curvePointExist == null)
+            {
+                return NotFound();
+            }
             await _curvePointRepository.UpdateAsync(curvePoint);
 
             return NoContent();

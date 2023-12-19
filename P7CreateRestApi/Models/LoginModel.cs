@@ -1,6 +1,6 @@
 ﻿using Microsoft.Build.Framework;
 
-namespace P7CreateRestApi.Models
+namespace P7CreateRestApi.Controllers
 {
     public class LoginModel
     {

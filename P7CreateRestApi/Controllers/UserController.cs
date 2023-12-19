@@ -2,83 +2,66 @@
 using P7CreateRestApi.Domain;
 using P7CreateRestApi.Repositories;
 
-namespace P7CreateRestApi.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class UserController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserController : ControllerBase
+    private IUserRepository _userRepository;
+    private readonly ILogger<UserController> _logger;
+
+    public UserController(ILogger<UserController> logger, IUserRepository userRepository)
     {
-        private readonly IBidListRepository _repository;
-       
-        public UserController(IBidListRepository repository)
-        {
-            _repository = repository;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<BidList>>> GetUserLists()
-        {
-            var bidLists = await _repository.GetBidListsAsync();
-            if (bidLists == null || !bidLists.Any())
-            {
-                return NotFound(); // retour erreur 404
-            }
-
-            return Ok(bidLists); // retour 200
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<BidList>> GetUserList(int id)
-        {
-            var bidList = await _repository.GetByIdAsync(id);
-
-            if (bidList == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(bidList);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserList(int id, BidList bidList)
-        {
-            if (id != bidList.BidListId)
-            {
-                return BadRequest();
-            }
-
-            await _repository.UpdateAsync(bidList);
-
-            return NoContent();
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<BidList>> PostUserList(BidList bidList)
-        {
-            try
-            {
-                await _repository.AddAsync(bidList);
-            }
-            catch (Exception)
-            {
-
-            }
-
-
-            return CreatedAtAction(nameof(GetUserList), new { id = bidList.BidListId }, bidList);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserList(int id)
-        {
-
-            await _repository.DeleteAsync(id);
-            return NoContent();
-        }
-    }
+        _logger = logger;
+        _userRepository = userRepository;
     }
 
+    [HttpPost("add")]
+    [ProducesResponseType(StatusCodes.Status200OK)] // OK
+    public async Task<IActionResult> AddUser([FromBody] User user)
+    {
+        _logger.LogInformation($"Ajout de l'utilisateur : {user.Id}");
+        await _userRepository.AddAsync(user);
+        _logger.LogInformation($"Utilisateur ajouté avec succès : {user.Id}");
+        return Ok();
+    }
 
+    [HttpPost("validate")]
+    [ProducesResponseType(StatusCodes.Status200OK)] // OK
+    [ProducesResponseType(StatusCodes.Status400BadRequest)] // Bad Request
+    public async Task<IActionResult> Validate([FromBody] User user)
+    {
+        _logger.LogInformation($"Validation de l'utilisateur : {user.Id}");
 
+        if (!ModelState.IsValid)
+        {
+            _logger.LogError("ModelState invalide");
+            return BadRequest();
+        }
 
+        await _userRepository.AddAsync(user);
+        _logger.LogInformation($"Utilisateur validé et ajout� avec succès : {user.Id}");
+        return Ok();
+    }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)] // OK
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        _logger.LogInformation($"Suppression de l'utilisateur avec l'ID : {id}");
+
+        await _userRepository.DeleteAsync( id);
+        _logger.LogInformation($"Utilisateur supprim� avec succès : { id}");
+
+        return Ok();
+    }
+
+    [HttpGet("secure/article-details")]
+    [ProducesResponseType(StatusCodes.Status200OK)] // OK
+    public async Task<ActionResult<List<User>>> GetAllUserArticles()
+    {
+        _logger.LogInformation("Récupération de tous les articles de l'utilisateur");
+        var users = await _userRepository.GetAllAsync();
+        _logger.LogInformation("Récupére articles de l'utilisateur");
+        return Ok(users);
+    }
+}

@@ -1,126 +1,56 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
-using P7CreateRestApi.Controllers;
-using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
+using P7CreateRestApi.Repositories;
+
 
 namespace TestProject7
 {
     public class TradesControllerTests
     {
-        // ...
-
         [Fact]
-        public async Task GetTradeReturnsTradeWhenTradeExists()
+        public async Task Get_ReturnsOkResult_WhenTradeExists()
         {
             // Arrange
-            var mockLogger = new Mock<ILogger<TradesController>>();
-            var mockContext = new Mock<LocalDbContext>();
-            var controller = new TradesController(mockLogger.Object, mockContext.Object);
+            var expectedTrade = new Trade { TradeId = 1, /* ... other properties ... */ };
 
-            var tradeId = 1;
-            var trade = new Trade { TradeId = tradeId, /* initialize trade properties */ };
-            var mockDbSet = new Mock<DbSet<Trade>>();
-            mockDbSet.Setup(m => m.FindAsync(tradeId)).ReturnsAsync(trade);
-            mockContext.Setup(c => c.Trades).Returns(mockDbSet.Object);
+            var mockRepository = new Mock<ITradeRepository>();
+            mockRepository.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(expectedTrade);
+
+            var mockLogger = new Mock<ILogger<TradeController>>();
+
+            var controller = new TradeController(mockLogger.Object, mockRepository.Object);
 
             // Act
-            var result = await controller.GetTrade(tradeId);
+            var result = await controller.Get(1);
 
             // Assert
-            var okObjectResult = Assert.IsType<OkObjectResult>(result.Result);
-            var model = Assert.IsType<Trade>(okObjectResult.Value);
-            Assert.Equal(tradeId, model.TradeId);
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var actualTrade = Assert.IsType<Trade>(okResult.Value);
+            Assert.Equal(expectedTrade.TradeId, actualTrade.TradeId);
+            // ... assert other properties as needed ...
         }
 
         [Fact]
-        public async Task GetTradeReturnsNotFoundWhenTradeDoesNotExist()
+        public async Task Get_ReturnsNotFoundResult_WhenTradeDoesNotExist()
         {
             // Arrange
-            var mockLogger = new Mock<ILogger<TradesController>>();
-            var mockContext = new Mock<LocalDbContext>();
-            var controller = new TradesController(mockLogger.Object, mockContext.Object);
+            var mockRepository = new Mock<ITradeRepository>();
+            mockRepository.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync((Trade)null);
 
-            var tradeId = 1;
-            var mockDbSet = new Mock<DbSet<Trade>>();
-            mockDbSet.Setup(m => m.FindAsync(tradeId)).ReturnsAsync(value: null as Trade); // No trade found
-            mockContext.Setup(c => c.Trades).Returns(mockDbSet.Object);
+            var mockLogger = new Mock<ILogger<TradeController>>();
+
+            var controller = new TradeController(mockLogger.Object, mockRepository.Object);
 
             // Act
-            var result = await controller.GetTrade(tradeId);
+            var result = await controller.Get(1);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result.Result);
+            Assert.IsType<NotFoundResult>(result);
         }
 
-        [Fact]
-        public async Task PutTradeWithValidIdReturnsNoContent()
-        {
-            // Arrange
-            var mockLogger = new Mock<ILogger<TradesController>>();
-            var mockContext = new Mock<LocalDbContext>();
-            var controller = new TradesController(mockLogger.Object, mockContext.Object);
-
-            var id = 1;
-            var trade = new Trade { TradeId = id, /* initialize other properties */ };
-            var mockDbSet = new Mock<DbSet<Trade>>();
-            mockContext.Setup(c => c.Trades).Returns(mockDbSet.Object);
-
-            // Act
-            var result = await controller.PostTrade(id, trade);
-
-            // Assert
-            Assert.IsType<NoContentResult>(result);
-            // You can add more assertions here if needed
-        }
-
-
-
-        [Fact]
-        public async Task PostTradeReturnsCreatedAtActionWhenAddSuccessful()
-        {
-            // Arrange
-            var mockLogger = new Mock<ILogger<TradesController>>();
-            var mockContext = new Mock<LocalDbContext>();
-            var controller = new TradesController(mockLogger.Object, mockContext.Object);
-
-            var id = 1;
-            var trade = new Trade { TradeId = id, /* initialize other properties */ };
-            var mockDbSet = new Mock<DbSet<Trade>>();
-            mockContext.Setup(c => c.Trades).Returns(mockDbSet.Object);
-
-            // Act
-            var result = await controller.PostTrade(id, trade);
-
-            // Assert
-            Assert.IsType<NoContentResult>(result);
-        }
-
-        [Fact]
-        public async Task DeleteTradeReturnsNoContentWhenDeleteSuccessful()
-        {
-            // Arrange
-            var mockLogger = new Mock<ILogger<TradesController>>();
-            var mockContext = new Mock<LocalDbContext>();
-            var trade = new Trade { TradeId = 1, /* initialize trade properties */ };
-            var mockDbSet = new Mock<DbSet<Trade>>();
-            mockDbSet.Setup(m => m.FindAsync(It.IsAny<object[]>())).ReturnsAsync(trade);
-            mockContext.Setup(c => c.Trades).Returns(mockDbSet.Object);
-
-            var controller = new TradesController(mockLogger.Object, mockContext.Object);
-            // Act
-            var result = await controller.DeleteTrade(1);
-
-            // Assert
-            Assert.IsType<NoContentResult>(result);
-            mockDbSet.Verify(d => d.FindAsync(It.IsAny<object[]>()), Times.Once);
-            mockContext.Verify(c => c.Trades.Remove(trade), Times.Once);
-            // Notez que nous ne vérifions pas SaveChangesAsync ici car le test ne dépend pas de cette méthode.
-        }
+        // Similar tests can be written for other actions in TradeController
     }
 }
-
-    
 

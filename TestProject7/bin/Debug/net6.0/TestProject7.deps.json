@@ -10,6 +10,7 @@
         "dependencies": {
           "Microsoft.NET.Test.Sdk": "17.5.0",
           "Moq.EntityFrameworkCore": "6.0.0.6",
+          "NUnit": "4.0.1",
           "P7CreateRestApi": "1.0.0",
           "coverlet.collector": "3.2.0",
           "xunit": "2.4.2",
@@ -2133,6 +2134,18 @@
           "lib/netstandard2.0/NuGet.Versioning.dll": {
             "assemblyVersion": "6.6.1.2",
             "fileVersion": "6.6.1.2"
+          }
+        }
+      },
+      "NUnit/4.0.1": {
+        "runtime": {
+          "lib/net6.0/nunit.framework.dll": {
+            "assemblyVersion": "4.0.1.0",
+            "fileVersion": "4.0.1.0"
+          },
+          "lib/net6.0/nunit.framework.legacy.dll": {
+            "assemblyVersion": "4.0.1.0",
+            "fileVersion": "4.0.1.0"
           }
         }
       },
@@ -4466,6 +4479,13 @@
       "sha512": "sha512-Wm/AOFICTIrCgbVxv9dNWusraTzcggbo5W4ao7hD8NNVq911an9TGwW+uNuYc8I5PkpTeMuSXneV2u6hbi1P4w==",
       "path": "nuget.versioning/6.6.1",
       "hashPath": "nuget.versioning.6.6.1.nupkg.sha512"
+    },
+    "NUnit/4.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-jNTHZ01hJsDNPDSBycoHpavFZUBf9vRVQLCyuo78LRrrFj6Ol/CeqK+NIeTk5d8Eycjk59KseWb7X5Ge6z7CgQ==",
+      "path": "nunit/4.0.1",
+      "hashPath": "nunit.4.0.1.nupkg.sha512"
     },
     "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
       "type": "package",
