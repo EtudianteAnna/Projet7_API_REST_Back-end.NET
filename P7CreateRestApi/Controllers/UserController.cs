@@ -67,4 +67,29 @@ public class UserController : ControllerBase
         _logger.LogInformation("Récupére articles de l'utilisateur");
         return Ok(users);
     }
+    // Nouvelle méthode pour la mise à jour de l'utilisateur
+    [HttpPut("update/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)] // OK
+    [ProducesResponseType(StatusCodes.Status404NotFound)] // Not Found
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] User updatedUser)
+    {
+        _logger.LogInformation($"Mise à jour de l'utilisateur avec l'ID : {id}");
+
+        var existingUser = await _userRepository.GetByIdAsync(id);
+
+        if (existingUser == null)
+        {
+            _logger.LogInformation($"Utilisateur avec l'ID {id} non trouvé.");
+            return NotFound();
+        }
+
+        // Update properties of existingUser with values from updatedUser
+        existingUser.UserName = updatedUser.UserName;
+        // Update other properties as needed
+
+        await _userRepository.UpdateAsync(existingUser);
+        _logger.LogInformation($"Utilisateur mis à jour avec succès : {id}");
+
+        return Ok();
+    }
 }
