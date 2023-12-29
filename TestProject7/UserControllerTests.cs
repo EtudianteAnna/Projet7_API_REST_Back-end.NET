@@ -13,100 +13,172 @@ namespace TestProject7
         public async Task AddUserReturnsOkResult()
         {
             // Arrange
-            var mockRepository = new Mock<IBidListRepository>();
-            var controller = new UserController(mockRepository.Object);
+            var loggerMock = new Mock<ILogger<UserController>>();
+            var userRepositoryMock = new Mock<IUserRepository>();
+            var userManagerMock = new Mock<TestUserManager>();
 
-            var expectedBidLists = new List<BidList> { /* initialize your expected list */ };
-            mockRepository.Setup(repo => repo.GetBidListsAsync()).ReturnsAsync(expectedBidLists);
+            var controller = new UserController(loggerMock.Object, userRepositoryMock.Object, userManagerMock.Object);
+
+            var user = new User
+            {
+                Id = "someUserId", // Set a valid user ID
+                                   // Set other properties as needed for testing
+            };
 
             // Act
-            var result = await controller.GetUserLists();
+            var result = await controller.AddUser(user);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var actualBidLists = Assert.IsAssignableFrom<IEnumerable<BidList>>(okResult.Value);
-            Assert.Equal(expectedBidLists, actualBidLists);
+            Assert.IsType<OkResult>(result);
+
+            // Optionally, you can add more assertions based on the specific behavior you expect
+            // For example, you might want to verify that the AddAsync method was called on the UserRepository
+            userRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<User>()), Times.Once);
+        }
+        [Fact]
+        public async Task ValidateReturnsOkResultWhenModelStateIsValid()
+        {
+            // Arrange
+            var loggerMock = new Mock<ILogger<UserController>>();
+            var userRepositoryMock = new Mock<IUserRepository>();
+            var userManagerMock = new Mock<TestUserManager>();
+
+            var controller = new UserController(loggerMock.Object, userRepositoryMock.Object, userManagerMock.Object);
+
+            var validUser = new User
+            {
+                Id = "someUserId", // Set a valid user ID
+                                   // Set other properties as needed for testing
+            };
+
+            // Act
+            var result = await controller.Validate(validUser);
+
+            // Assert
+            Assert.IsType<OkResult>(result);
+            userRepositoryMock.Verify(repo => repo.AddAsync(validUser), Times.Once);
         }
 
         [Fact]
-        public async Task GetUserListReturnsOkResultWithBidList()
+        public async Task ValidateReturnsBadRequestResultWhenModelStateIsInvalid()
         {
-
             // Arrange
-            var mockRepository = new Mock<IBidListRepository>();
-            var controller = new UserController(mockRepository.Object);
+            var loggerMock = new Mock<ILogger<UserController>>();
+            var userRepositoryMock = new Mock<IUserRepository>();
+            var userManagerMock = new Mock<TestUserManager>();
 
-            var expectedBidList = new BidList { /* initialize your expected BidList */ };
-            var bidListId = 1;
-            mockRepository.Setup(repo => repo.GetByIdAsync(bidListId)).ReturnsAsync(expectedBidList);
+            var controller = new UserController(loggerMock.Object, userRepositoryMock.Object, userManagerMock.Object);
 
-            var userToAdd = new User { /* set properties */ };
+            // Simulate a model state error by adding an error to the ModelState
+            controller.ModelState.AddModelError("PropertyName", "Error message");
+
+            var invalidUser = new User
+            {
+                Id = "someUserId", // Set a valid user ID
+                                   // Set other properties as needed for testing
+            };
 
             // Act
-            var result = await controller.GetUserList(bidListId);
+            var result = await controller.Validate(invalidUser);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var actualBidList = Assert.IsType<BidList>(okResult.Value);
-            Assert.Equal(expectedBidList, actualBidList);
+            Assert.IsType<BadRequestResult>(result);
+            userRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<User>()), Times.Never);
         }
 
         [Fact]
-        public async Task PutUserListReturnsNoContent()
+        public async Task UpdateUserReturnsOkResult()
         {
             // Arrange
-            var mockRepository = new Mock<IBidListRepository>();
-            var controller = new UserController(mockRepository.Object);
+            var loggerMock = new Mock<ILogger<UserController>>();
+            var userRepositoryMock = new Mock<IUserRepository>();
+            var userManagerMock = new Mock<TestUserManager>();
 
-            var bidListId = 1;
-            var bidList = new BidList { BidListId = bidListId, /* initialize other properties */ };
+            var controller = new UserController(loggerMock.Object, userRepositoryMock.Object, userManagerMock.Object);
 
+            int userIdToUpdate = 1; // Set the user ID to be updated
+            var updatedUser = new User { Id = userIdToUpdate.ToString(), /* set other properties */ };
+
+            userRepositoryMock.Setup(repo => repo.GetByIdAsync(userIdToUpdate))
+                      .ReturnsAsync(new User { Id = userIdToUpdate.ToString() });
             // Act
-            var result = await controller.PutUserList(bidListId, bidList);
+            var result = await controller.UpdateUser(userIdToUpdate, updatedUser);
 
             // Assert
-            Assert.IsType<NoContentResult>(result);
-            mockRepository.Verify(repo => repo.UpdateAsync(bidList), Times.Once);
-        }
+            // Verify that GetByIdAsync is called with the correct ID
+            userRepositoryMock.Verify(repo => repo.GetByIdAsync(userIdToUpdate), Times.Once);
 
-        [Fact]
-        public async Task PostUserListReturnsCreatedAtAction()
-        {
-            // Arrange
-            var mockRepository = new Mock<IBidListRepository>();
-            var controller = new UserController(mockRepository.Object);
+            // Verify that UpdateAsync is called with the correct user
+            userRepositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<User>()), Times.Once);
 
-            var bidList = new BidList { /* initialize your BidList */ };
-
-            // Act
-            var result = await controller.GetAllUserArticles();
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var returnedUsers = Assert.IsAssignableFrom<List<User>>(okResult.Value);
-            Assert.Equal(users.Count, returnedUsers.Count);
-        }
-    
-
-        [Fact]
-        public async Task DeleteUserListReturnsNoContent()
-        {
-            // Arrange
-            var mockRepository = new Mock<IBidListRepository>();
-            var controller = new UserController(mockRepository.Object);
-
-            var bidListId = 1;
-
-            // Act
-            var result = await controller.GetAllUserArticles();
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var returnedUsers = Assert.IsAssignableFrom<List<User>>(okResult.Value);
-            Assert.Empty(returnedUsers);
-        }
-
+            // Assert the result
+            Assert.IsType<OkResult>(result);
+        
     }
 
+        [Fact]
+        public async Task DeleteUserReturnsOkResult()
+        {
+            // Arrange
+            var loggerMock = new Mock<ILogger<UserController>>();
+            var userRepositoryMock = new Mock<IUserRepository>();
+            var userManagerMock = new Mock<TestUserManager>();
 
+            var controller = new UserController(loggerMock.Object, userRepositoryMock.Object, userManagerMock.Object);
+
+            int userIdToDelete = 1; // Set the user ID to be deleted
+
+            // Act
+            var result = await controller.DeleteUser(userIdToDelete);
+
+            // Assert
+            Assert.IsType<OkResult>(result);
+            userRepositoryMock.Verify(repo => repo.DeleteAsync(userIdToDelete), Times.Once);
+        }
+
+
+        [Fact]
+        public async Task GetAllUserArticlesReturnsOkResultWithUsers()
+        {
+            // Arrange
+            var loggerMock = new Mock<ILogger<UserController>>();
+            var userRepositoryMock = new Mock<IUserRepository>();
+            var userManagerMock = new Mock<TestUserManager>();
+
+            var expectedUsers = new List<User>
+        {
+            new User { Id = Guid.NewGuid().ToString() },
+            new User { Id = Guid.NewGuid().ToString() },
+            // Add more users as needed
+        };
+
+            userRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(expectedUsers);
+
+            var controller = new UserController(loggerMock.Object, userRepositoryMock.Object, userManagerMock.Object);
+
+            // Act
+            var result = await controller.GetAllUserArticles();
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var actualUsers = Assert.IsAssignableFrom<List<User>>(okResult.Value);
+            Assert.Equal(expectedUsers.Count, actualUsers.Count);
+        }
+    }
 }
+    
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+        

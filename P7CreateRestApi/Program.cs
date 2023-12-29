@@ -23,7 +23,20 @@ internal class Program
             .CreateLogger();
 
         // Configuration de la base de données
-        builder.Services.AddDbContext<LocalDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        var  connectionString = configuration.GetConnectionString("DefaultConnection");
+        if (connectionString != null)
+        {
+            builder.Services.AddDbContext<LocalDbContext>(options => options.UseSqlServer(connectionString));
+        }
+        else
+        {
+            // Gérer le cas où la chaîne de connexion est nulle
+            // Vous pouvez journaliser un avertissement, effectuer une autre action corrective, ou lancer une exception
+            Log.Warning("La chaîne de connexion à la base de données est nulle.");
+            // Ou vous pouvez lancer une exception pour indiquer un problème avec la configuration
+            throw new InvalidOperationException("La chaîne de connexion à la base de données est nulle.");
+        }
+
 
         // Configuration pour Identity
         builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
@@ -110,6 +123,7 @@ internal class Program
         builder.Services.AddScoped<ITradeRepository, TradeRepository>();
         builder.Services.AddScoped<IRuleNameRepository, RuleNameRepository>();
         builder.Services.AddScoped<ICurvePointRepository, CurvePointsRepository>();
+        builder.Services.AddScoped<IPasswordHasher<IdentityUser>, CustomPasswordHasher >();
 
         var app = builder.Build();
 
