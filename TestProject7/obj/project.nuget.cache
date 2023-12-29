@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "MdKR4Z2v/IHCFApqWj7MtV1Kkx6oG8T90fZNlx9GC/6NfQROUfGFNAtM29cJYRMQccAt4ti9g0WKy3gwt9QG7A==",
+  "dgSpecHash": "en6iwlmv7oysnsud7/tl4OXH3JeEw2XCPy40C8OJ9b+SRSmwFoWqo4NkBZLe/74cjGnnFS5jhn2T9YBa2C48OA==",
   "success": true,
   "projectFilePath": "C:\\Users\\A154NF\\source\\repos\\Projet7_API_REST_Back-end.NET\\TestProject7\\TestProject7.csproj",
   "expectedPackageFiles": [
@@ -287,7 +287,7 @@
       "code": "NU1701",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Le package 'Microsoft.AspNet.Identity.Core 2.2.4' a été restauré en utilisant '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' au lieu du framework cible du projet 'net6.0'. Ce package n'est peut-être pas totalement compatible avec votre projet.",
+      "message": "Le package 'Microsoft.AspNet.Identity.Core 2.2.4' a �t� restaur� en utilisant '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' au lieu du framework cible du projet 'net6.0'. Ce package n'est peut-�tre pas totalement compatible avec votre projet.",
       "libraryId": "Microsoft.AspNet.Identity.Core",
       "targetGraphs": [
         "net6.0"

@@ -3,7 +3,6 @@ C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debu
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\P7CreateRestApi.deps.json
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\P7CreateRestApi.runtimeconfig.json
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\appsettings.json
-C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\P7CreateRestApi.staticwebassets.runtime.json
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\P7CreateRestApi.exe
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\testhost.exe
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\xunit.runner.visualstudio.dotnetcore.testadapter.dll
@@ -18,12 +17,10 @@ C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debu
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Humanizer.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\MessagePack.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\MessagePack.Annotations.dll
-C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.AspNet.Identity.Core.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.AspNetCore.Cryptography.Internal.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
-C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.AspNetCore.Identity.UI.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.AspNetCore.Razor.Language.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.Build.dll
@@ -54,7 +51,6 @@ C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debu
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.Extensions.DependencyModel.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.Extensions.FileProviders.Abstractions.dll
-C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.Extensions.FileProviders.Embedded.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.Extensions.Hosting.Abstractions.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.Extensions.Identity.Core.dll
 C:\Users\A154NF\source\repos\Projet7_API_REST_Back-end.NET\TestProject7\bin\Debug\net6.0\Microsoft.Extensions.Identity.Stores.dll

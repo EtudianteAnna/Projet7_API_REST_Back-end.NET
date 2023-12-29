@@ -45,7 +45,7 @@ public class RuleNameController : ControllerBase
 
         await _ruleNameRepository.AddAsync(ruleName);
 
-        _logger.LogInformation($"Nom de règle ajouté avec succès. ID du nom de règle : {ruleName.Id}");
+        _logger.LogInformation($"Nom de r�gle ajout� avec succ�s. ID du nom de r�gle : {ruleName.Id}");
 
         return CreatedAtAction(nameof(Get), new { id = ruleName.Id }, ruleName);
     }

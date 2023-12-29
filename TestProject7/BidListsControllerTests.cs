@@ -13,14 +13,8 @@ namespace TestProject7
 
     public class BidListsControllerTests
     {
-        [Fact]
-        public async Task Get_ReturnsOkObjectResult()
-        {
-            // Arrange
-            var mock = new Mock<IBidListRepository>();
-            var bidListRepositoryMock = new Mock<IBidListRepository>();
-            bidListRepositoryMock.Setup(repo => repo.GetByIdAsync(It.IsAny<int>()))
-                                 .ReturnsAsync(new BidList { BidListId = 1 });
+        private readonly Mock<IBidListRepository> mockRepository;
+        private readonly Mock<ILogger<BidListsController>> mockLogger;
 
             var loggerMock = new Mock<ILogger<BidListsController>>();
 
@@ -32,30 +26,13 @@ namespace TestProject7
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
         }
+
         [Fact]
-        public async Task Get_ReturnsNotFoundForInvalidId()
+        public async Task GetBidLists_ReturnsOkResultWithBidLists()
         {
             // Arrange
             var mockRepository = new Mock<IBidListRepository>();
-            var loggerMock = new Mock<ILogger<BidListsController>>();
-            var controller = new BidListsController(loggerMock.Object, mockRepository.Object);
-
-            // Act
-            var actionResult = await controller.Get(1);
-            var result = actionResult as NotFoundResult;
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(404, result.StatusCode);
-        }
-            [Fact]
-            public async Task Post_ReturnsCreatedAtAction()
-
-            {
-                // Arrange
-                var mockRepository = new Mock<IBidListRepository>();
-                var loggerMock = new Mock<ILogger<BidListsController>>();
-                var controller = new BidListsController(loggerMock.Object, mockRepository.Object);
+            var controller = new BidListsController(mockRepository.Object);
 
                 var bidListToCreate = new BidList { /* set properties */ };
 
@@ -63,13 +40,11 @@ namespace TestProject7
                 var result = await controller.Post(bidListToCreate);
                 var createdAtActionResult = result as CreatedAtActionResult;
 
-                // Assert
-                Assert.NotNull(createdAtActionResult);
-            Assert.Equal(201, createdAtActionResult.StatusCode);
-                Assert.Equal(nameof(controller.Get), createdAtActionResult.ActionName);
-                Assert.NotNull(createdAtActionResult.RouteValues);
-              mockRepository.Verify(m=>m.AddAsync(It.IsAny<BidList>()),Times.Once);
-            
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var model = Assert.IsType<List<BidList>>(okResult.Value);
+            Assert.Single(model);
+            Assert.Equal(bidLists, model);
         }
         [Fact]
         public async Task PostReturnsBadRequestWhenAddFails()
@@ -79,19 +54,6 @@ namespace TestProject7
                 mockRepository.Setup(repo => repo.AddAsync(It.IsAny<BidList>()))
                     .ThrowsAsync(new Exception("Simulated add failure"));
 
-                var loggerMock = new Mock<ILogger<BidListsController>>();
-
-            var controller = new BidListsController(loggerMock.Object, mockRepository.Object);
-
-                var bidListToCreate = new BidList { /* set properties */ };
-
-            // Act and Assert
-            IActionResult result = await controller.Post(bidListToCreate);
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestResult>(result);
-            Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
-            mockRepository.Verify(m => m.AddAsync(It.IsAny<BidList>()), Times.Once);
-        }
         [Fact]
         //Ce scénario teste la logique de gestion des erreurs de validation du modèle dans la méthode Post
         public async Task PostReturnsBadRequestWhenModelIsInvalid()
@@ -109,12 +71,9 @@ namespace TestProject7
             var result = await controller.Post(invalidBidList);
 
             // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
-
-            // Vérifiez que la méthode AddAsync du repository n'est pas appelée
-            mockRepository.Verify(m => m.AddAsync(It.IsAny<BidList>()), Times.Never);
-
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var model = Assert.IsType<BidList>(okResult.Value);
+            Assert.Equal(bidList, model);
         }
 
         //Le test Put_ReturnsNoContent teste l'action Put de votre contrôleur BidListController pour vérifier si elle retourne le code de réponse "No Content" (204) après avoir réussi la mise à jour d'une liste d'offres
