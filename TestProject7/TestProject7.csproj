@@ -11,6 +11,8 @@
 
   <ItemGroup>
     
+    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.302.3" />
+    
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.25" />

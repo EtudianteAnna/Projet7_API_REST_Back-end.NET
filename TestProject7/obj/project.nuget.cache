@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "xC/rG2nfRbqW+wUwyTTwox24TQNu1onwari663tousHCMm0Bh7KIoKtPPYaQCeuozT4SBooexllWo3dJ/EgsYA==",
+  "dgSpecHash": "veI7oiAmb/+WR3pRlw8vZVHMAYp/dbeu8Hrwvf0v2GDsnQPnBSYAnOw8A9ei3fgyjE5jCaz5KeDQpVf4Y8u9Dw==",
   "success": true,
   "projectFilePath": "C:\\Users\\A154NF\\source\\repos\\Projet7_API_REST_Back-end.NET\\TestProject7\\TestProject7.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\A154NF\\.nuget\\packages\\awssdk.core\\3.7.300.28\\awssdk.core.3.7.300.28.nupkg.sha512",
+    "C:\\Users\\A154NF\\.nuget\\packages\\awssdk.secretsmanager\\3.7.302.3\\awssdk.secretsmanager.3.7.302.3.nupkg.sha512",
     "C:\\Users\\A154NF\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\A154NF\\.nuget\\packages\\castle.core\\4.4.0\\castle.core.4.4.0.nupkg.sha512",
     "C:\\Users\\A154NF\\.nuget\\packages\\coverlet.collector\\3.2.0\\coverlet.collector.3.2.0.nupkg.sha512",

@@ -12,6 +12,7 @@
 		<!-- Mise à jour de Microsoft.AspNetCore.Cors -->
 
 		<!-- Mise à jour de Swashbuckle.AspNetCore -->
+		<PackageReference Include="AWSSDK.SecretsManager" Version="3.7.302.3" />
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="FluentAssertions" Version="6.12.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.25" />

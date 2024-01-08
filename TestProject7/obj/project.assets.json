@@ -2,6 +2,35 @@
   "version": 3,
   "targets": {
     "net6.0": {
+      "AWSSDK.Core/3.7.300.28": {
+        "type": "package",
+        "compile": {
+          "lib/netcoreapp3.1/AWSSDK.Core.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/AWSSDK.Core.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
+      "AWSSDK.SecretsManager/3.7.302.3": {
+        "type": "package",
+        "dependencies": {
+          "AWSSDK.Core": "[3.7.300.28, 4.0.0)"
+        },
+        "compile": {
+          "lib/netcoreapp3.1/AWSSDK.SecretsManager.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/AWSSDK.SecretsManager.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
       "BCrypt.Net-Next/4.0.3": {
         "type": "package",
         "compile": {
@@ -5089,6 +5118,7 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
         "dependencies": {
+          "AWSSDK.SecretsManager": "3.7.302.3",
           "BCrypt.Net-Next": "4.0.3",
           "FluentAssertions": "6.12.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "6.0.25",
@@ -5117,6 +5147,67 @@
     }
   },
   "libraries": {
+    "AWSSDK.Core/3.7.300.28": {
+      "sha512": "mVEXlMkMOek7IvF37qNOKTan/9fS+MSHlfuc+M3265/jJ+fTm+NDXOio0L5fy3iqY/nonYX9L3Bph3hdM3p6VA==",
+      "type": "package",
+      "path": "awssdk.core/3.7.300.28",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "awssdk.core.3.7.300.28.nupkg.sha512",
+        "awssdk.core.nuspec",
+        "images/AWSLogo.png",
+        "lib/net35/AWSSDK.Core.dll",
+        "lib/net35/AWSSDK.Core.pdb",
+        "lib/net35/AWSSDK.Core.xml",
+        "lib/net45/AWSSDK.Core.dll",
+        "lib/net45/AWSSDK.Core.pdb",
+        "lib/net45/AWSSDK.Core.xml",
+        "lib/net8.0/AWSSDK.Core.dll",
+        "lib/net8.0/AWSSDK.Core.pdb",
+        "lib/net8.0/AWSSDK.Core.xml",
+        "lib/netcoreapp3.1/AWSSDK.Core.dll",
+        "lib/netcoreapp3.1/AWSSDK.Core.pdb",
+        "lib/netcoreapp3.1/AWSSDK.Core.xml",
+        "lib/netstandard2.0/AWSSDK.Core.dll",
+        "lib/netstandard2.0/AWSSDK.Core.pdb",
+        "lib/netstandard2.0/AWSSDK.Core.xml",
+        "tools/account-management.ps1"
+      ]
+    },
+    "AWSSDK.SecretsManager/3.7.302.3": {
+      "sha512": "W2HAEnGsXFDvvfc+ZKJ5KdOlUZUc1YT5mMQSY6gSrI51oCTKoEvd5OmRHzG2PTSaLsIZcFf5/Zb8zWfWyxaQQw==",
+      "type": "package",
+      "path": "awssdk.secretsmanager/3.7.302.3",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "analyzers/dotnet/cs/AWSSDK.SecretsManager.CodeAnalysis.dll",
+        "analyzers/dotnet/cs/SharedAnalysisCode.dll",
+        "awssdk.secretsmanager.3.7.302.3.nupkg.sha512",
+        "awssdk.secretsmanager.nuspec",
+        "images/AWSLogo.png",
+        "lib/net35/AWSSDK.SecretsManager.dll",
+        "lib/net35/AWSSDK.SecretsManager.pdb",
+        "lib/net35/AWSSDK.SecretsManager.xml",
+        "lib/net45/AWSSDK.SecretsManager.dll",
+        "lib/net45/AWSSDK.SecretsManager.pdb",
+        "lib/net45/AWSSDK.SecretsManager.xml",
+        "lib/net8.0/AWSSDK.SecretsManager.dll",
+        "lib/net8.0/AWSSDK.SecretsManager.pdb",
+        "lib/net8.0/AWSSDK.SecretsManager.xml",
+        "lib/netcoreapp3.1/AWSSDK.SecretsManager.dll",
+        "lib/netcoreapp3.1/AWSSDK.SecretsManager.pdb",
+        "lib/netcoreapp3.1/AWSSDK.SecretsManager.xml",
+        "lib/netstandard2.0/AWSSDK.SecretsManager.dll",
+        "lib/netstandard2.0/AWSSDK.SecretsManager.pdb",
+        "lib/netstandard2.0/AWSSDK.SecretsManager.xml",
+        "tools/install.ps1",
+        "tools/uninstall.ps1"
+      ]
+    },
     "BCrypt.Net-Next/4.0.3": {
       "sha512": "W+U9WvmZQgi5cX6FS5GDtDoPzUCV4LkBLkywq/kRZhuDwcbavOzcDAr3LXJFqHUi952Yj3LEYoWW0jbEUQChsA==",
       "type": "package",
@@ -14188,6 +14279,7 @@
   },
   "projectFileDependencyGroups": {
     "net6.0": [
+      "AWSSDK.SecretsManager >= 3.7.302.3",
       "BCrypt.Net-Next >= 4.0.3",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 6.0.25",
       "Microsoft.AspNetCore.Identity.UI >= 6.0.25",
@@ -14244,6 +14336,10 @@
       "net6.0": {
         "targetAlias": "net6.0",
         "dependencies": {
+          "AWSSDK.SecretsManager": {
+            "target": "Package",
+            "version": "[3.7.302.3, )"
+          },
           "BCrypt.Net-Next": {
             "target": "Package",
             "version": "[4.0.3, )"

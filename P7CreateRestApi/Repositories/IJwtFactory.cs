@@ -1,7 +1,11 @@
-﻿namespace P7CreateRestApi.Repositories
+﻿using P7CreateRestApi.Domain;
+
+namespace P7CreateRestApi.Repositories
+
 {
+
     public interface IJwtFactory
     {
-        string GeneratedEncodedToken(string userId, string userName, IList<string> roles);
+        string GeneratedEncodedToken(User user);
     }
 }

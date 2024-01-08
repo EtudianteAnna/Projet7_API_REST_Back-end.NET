@@ -1,14 +1,11 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using P7CreateRestApi.Repositories;
+using P7CreateRestApi.Domain;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-//...
-
-namespace P7CreateRestApi.Domain
+namespace P7CreateRestApi.Repositories
 {
-
     public class JwtFactory : IJwtFactory
     {
         private readonly IConfiguration _configuration;
@@ -18,27 +15,19 @@ namespace P7CreateRestApi.Domain
             _configuration = configuration;
         }
 
-        public string GeneratedEncodedToken(string userId, string userName, IList<string> roles)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string GenerateEncodedToken(string userId, string userName, IList<string> roles)
+        public string GeneratedEncodedToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, userName),
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Assuming user.Id is a unique identifier for the user
             };
 
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
+            // Add other claims as needed
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

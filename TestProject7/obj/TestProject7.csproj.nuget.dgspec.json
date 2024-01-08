@@ -41,6 +41,10 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "AWSSDK.SecretsManager": {
+              "target": "Package",
+              "version": "[3.7.302.3, )"
+            },
             "BCrypt.Net-Next": {
               "target": "Package",
               "version": "[4.0.3, )"
@@ -168,6 +172,10 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "AWSSDK.SecretsManager": {
+              "target": "Package",
+              "version": "[3.7.302.3, )"
+            },
             "BCrypt.Net-Next": {
               "target": "Package",
               "version": "[4.0.3, )"

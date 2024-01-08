@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
-using System.Security.Cryptography.X509Certificates;
 
 namespace P7CreateRestApi.Repositories
 {
     public class UserRepository : IUserRepository
     {
         private readonly LocalDbContext _context;
+        private object await_dbContext;
+        private object _passwordHasher;
 
         public UserRepository(LocalDbContext context)
         {
@@ -26,7 +27,8 @@ namespace P7CreateRestApi.Repositories
 
         public async Task AddAsync(User user)
         {
-            _context.Users.Add(user);
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
+            await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
         }
 
@@ -46,13 +48,29 @@ namespace P7CreateRestApi.Repositories
                 await _context.SaveChangesAsync();
             }
 
-                      
         }
-        public async Task<User> GetUserByCredentialsAsync(string userName, string password)
-        {
-            return  await _context.Users
-                .FirstOrDefaultAsync(u => u.UserName == userName && u.Password == password);
+        public async Task AddUser(User user)
 
+        {
+            // Ajoutez la logique pour ajouter un utilisateur à la base de données
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
         }
+
+        public async Task<User> GetUserByCredentialsAsync(string userName)
+        {
+           return  await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+        }
+
+
     }
 }
+
+
+    
+
+
+
+
+
+

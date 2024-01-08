@@ -123,8 +123,7 @@ internal class Program
         builder.Services.AddScoped<ITradeRepository, TradeRepository>();
         builder.Services.AddScoped<IRuleNameRepository, RuleNameRepository>();
         builder.Services.AddScoped<ICurvePointRepository, CurvePointsRepository>();
-        builder.Services.AddScoped<IPasswordHasher<IdentityUser>, CustomPasswordHasher >();
-
+        
         var app = builder.Build();
 
         // ... autres configurations

@@ -2,9 +2,9 @@
 
 namespace P7CreateRestApi.Repositories;
 
-public class CustomPasswordHasher : PasswordHasher<IdentityUser>, IPasswordHasher<IdentityUser>
+public class CustomPasswordHasher 
 {
-    public new string HashPassword(IdentityUser user, string password)
+    public string HashPassword( string password)
     {
         // Génère un hachage de mot de passe avec BCrypt
         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
@@ -12,7 +12,7 @@ public class CustomPasswordHasher : PasswordHasher<IdentityUser>, IPasswordHashe
         return hashedPassword;
     }
 
-    public new PasswordVerificationResult VerifyHashedPassword(IdentityUser user, string hashedPassword, string providedPassword)
+    public PasswordVerificationResult VerifyHashedPassword(string hashedPassword, string providedPassword)
     {
         // Vérifie le mot de passe fourni avec le hachage stocké en utilisant BCrypt
         bool passwordMatch = BCrypt.Net.BCrypt.Verify(providedPassword, hashedPassword);
