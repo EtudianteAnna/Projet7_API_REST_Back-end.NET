@@ -10,5 +10,8 @@ namespace P7CreateRestApi.Controllers
 
         [Required]
         public string Password { get; set; }
+
+        [Required]
+        public string Email { get; set; }
     }
 }

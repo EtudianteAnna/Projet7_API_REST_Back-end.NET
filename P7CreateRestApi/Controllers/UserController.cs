@@ -1,21 +1,38 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Domain;
 using P7CreateRestApi.Repositories;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
-    private IUserRepository _userRepository;
+    private readonly UserManager<User> _userManager;
     private readonly ILogger<UserController> _logger;
-    private readonly TestUserManager _userManager;
+    private readonly IUserRepository _userRepository;
 
-    public UserController(ILogger<UserController> logger, IUserRepository userRepository, TestUserManager userManager)
+    public UserController(ILogger<UserController> logger, IUserRepository userRepository, UserManager<User> userManager)
     {
         _logger = logger;
         _userRepository = userRepository;
-        _userManager = userManager;
+
+        // Personnalisation de l'initialisation de _userManager
+        if (userManager != null)
+        {
+            _userManager = userManager;
+            // Autres opérations d'initialisation si nécessaire
+        }
+        else
+        {
+            // Initialisation par défaut ou gestion des cas où userManager est null
+            _userManager = new UserManager<User>(/* Paramètres d'initialisation */);
+        }
+    }
+
+    public UserController(ILogger<UserController> object1, IUserRepository object2)
+    {
     }
 
     [HttpPost("add")]
@@ -42,32 +59,12 @@ public class UserController : ControllerBase
         }
 
         await _userRepository.AddAsync(user);
-        _logger.LogInformation($"Utilisateur validé et ajout� avec succès : {user.Id}");
+        _logger.LogInformation($"Utilisateur validé et ajouté avec succès : {user.Id}");
         return Ok();
     }
 
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)] // OK
-    public async Task<IActionResult> DeleteUser(int id)
-    {
-        _logger.LogInformation($"Suppression de l'utilisateur avec l'ID : {id}");
+    // Reste du code...
 
-        await _userRepository.DeleteAsync(id);
-        _logger.LogInformation($"Utilisateur supprim� avec succès : {id}");
-
-        return Ok();
-    }
-
-    [HttpGet("secure/article-details")]
-    [ProducesResponseType(StatusCodes.Status200OK)] // OK
-    public async Task<ActionResult<List<User>>> GetAllUserArticles()
-    {
-        _logger.LogInformation("Récupération de tous les articles de l'utilisateur");
-        var users = await _userRepository.GetAllAsync();
-        _logger.LogInformation("Récupére articles de l'utilisateur");
-        return Ok(users);
-    }
-    // Nouvelle méthode pour la mise à jour de l'utilisateur
     [HttpPut("update/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)] // OK
     [ProducesResponseType(StatusCodes.Status404NotFound)] // Not Found

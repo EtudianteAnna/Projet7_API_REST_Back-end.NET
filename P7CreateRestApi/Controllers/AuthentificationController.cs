@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Controllers;
 using P7CreateRestApi.Domain;
 using P7CreateRestApi.Repositories;
 
 
+[ApiController]
+[Route("api/[controller]")]
 public class AuthentificationController : ControllerBase
 {
     private readonly ILogger<AuthentificationController> _logger;
@@ -12,6 +15,7 @@ public class AuthentificationController : ControllerBase
     private readonly IJwtFactory _jwtFactory;
     private readonly IPasswordHasher<User> _passwordHasher;
 
+    
     public AuthentificationController(ILogger<AuthentificationController> logger, IUserRepository userRepository, IJwtFactory jwtFactory, IPasswordHasher<User> passwordHasher)
     {
         _logger = logger;
@@ -19,23 +23,32 @@ public class AuthentificationController : ControllerBase
         _jwtFactory = jwtFactory;
         _passwordHasher = passwordHasher;
     }
-
+    [AllowAnonymous] // Permet l'accès à tous, même aux utilisateurs non authentifiés
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
         _logger.LogInformation($"Tentative de connexion : {model.Username}");
-
+        // Validation du modèle
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         var user = await _userRepository.GetUserByCredentialsAsync(model.Username);
         if (user == null)
+
         {
             _logger.LogWarning($"Utilisateur avec le nom d'utilisateur {model.Username} non trouvé.");
 
-            // L'utilisateur n'existe pas, vous pouvez ajouter un code pour créer cet utilisateur.
             // Créer un nouvel utilisateur avec le modèle
-            var newUser = new User
+            // Créer un nouvel utilisateur avec le modèle
+            var newUser = new User(model.Username, model.Email)
             {
-                Username = model.Username
+                UserName = model.Username
             };
+
+
+            // Hasher le mot de passe avec l'utilisateur
+            newUser.PasswordHash = _passwordHasher.HashPassword(newUser, model.Password);
             // Ajouter le nouvel utilisateur à la base de données
             await _userRepository.AddUser(newUser);
 
@@ -43,10 +56,8 @@ public class AuthentificationController : ControllerBase
 
             // Générer le jeton JWT pour le nouvel utilisateur
             var newToken = _jwtFactory.GeneratedEncodedToken(newUser);
-
+            // Retourner la réponse avec le jeton
             return Ok(new { Message = "Utilisateur créé et connecté avec succès", Token = newToken });
-            // Hasher le mot de passe avec l'utilisateur
-            newUser.PasswordHash = _passwordHasher.HashPassword(newUser, model.Password);
 
         }
 
@@ -63,6 +74,11 @@ public class AuthentificationController : ControllerBase
         var token = _jwtFactory.GeneratedEncodedToken(user);
 
         _logger.LogInformation($"Connexion réussie pour l'utilisateur {model.Username}.");
+
+        // Retourner la réponse avec le jeton
         return Ok(new { Message = "Connexion réussie", Token = token });
     }
 }
+
+
+

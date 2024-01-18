@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Data;
 using P7CreateRestApi.Domain;
 
@@ -7,19 +8,19 @@ namespace P7CreateRestApi.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly LocalDbContext _context;
-        private object await_dbContext;
-        private object _passwordHasher;
+        private readonly UserManager<User> _userManager;
 
-        public UserRepository(LocalDbContext context)
+
+        public UserRepository(LocalDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<List<User>> GetAllAsync()
         {
             return await _context.Users.ToListAsync();
         }
-
         public async Task<User> GetByIdAsync(int id)
         {
             return await _context.Users.FindAsync(id);
@@ -56,10 +57,9 @@ namespace P7CreateRestApi.Repositories
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
         }
-
         public async Task<User> GetUserByCredentialsAsync(string userName)
         {
-           return  await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+           return  await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
         }
 
 

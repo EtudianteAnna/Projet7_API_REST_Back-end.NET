@@ -1,12 +1,13 @@
 using Dot.Net.WebApi.Controllers;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using P7CreateRestApi.Controllers;
 using P7CreateRestApi.Domain;
 using P7CreateRestApi.Repositories;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -27,12 +28,12 @@ namespace TestProject7
         public async Task GetBidLists_ReturnsOkResultWithBidLists()
         {
             // Arrange
-            // Arrange
             var controller = new BidListsController(mockLogger.Object, mockRepository.Object);
 
             // Configure the mock to return a dummy bidList when GetByIdAsync is called
+            var expectedBidList = new BidList { /* initialize with properties */ };
             mockRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<int>()))
-                          .ReturnsAsync(new BidList { /* initialize with properties */ });
+                          .ReturnsAsync(expectedBidList);
 
             // Act
             var result = await controller.Get(1);
@@ -40,7 +41,10 @@ namespace TestProject7
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             var bidList = Assert.IsType<BidList>(okResult.Value);
-            Assert.NotNull(bidList);
+            bidList.Should().BeEquivalentTo(expectedBidList);
+
+            // Vérifier l'appel au repository GetByIdAsync
+            mockRepository.Verify(repo => repo.GetByIdAsync(1), Times.Once);
         }
 
         [Fact]
@@ -56,7 +60,10 @@ namespace TestProject7
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestResult>(result);
-            Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
+            badRequestResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+            // Vérifier l'appel au repository AddAsync
+            mockRepository.Verify(repo => repo.AddAsync(It.IsAny<BidList>()), Times.Once);
         }
 
         [Fact]
@@ -71,7 +78,10 @@ namespace TestProject7
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
+            badRequestResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+            // Vérifier que le repository AddAsync n'est pas appelé
+            mockRepository.Verify(repo => repo.AddAsync(It.IsAny<BidList>()), Times.Never);
         }
 
         [Fact]
@@ -91,7 +101,10 @@ namespace TestProject7
 
             // Assert
             var noContentResult = Assert.IsType<NoContentResult>(result);
-            Assert.Equal(StatusCodes.Status204NoContent, noContentResult.StatusCode);
+            noContentResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+
+            // Vérifier l'appel au repository UpdateAsync
+            mockRepository.Verify(repo => repo.UpdateAsync(bidListToUpdate), Times.Once);
         }
 
         [Fact]
@@ -105,7 +118,10 @@ namespace TestProject7
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestResult>(result);
-            Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
+            badRequestResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+            // Vérifier que le repository UpdateAsync n'est pas appelé
+            mockRepository.Verify(repo => repo.UpdateAsync(It.IsAny<BidList>()), Times.Never);
         }
 
         [Fact]
@@ -124,7 +140,10 @@ namespace TestProject7
 
             // Assert
             var noContentResult = Assert.IsType<NoContentResult>(result);
-            Assert.Equal(StatusCodes.Status204NoContent, noContentResult.StatusCode);
+            noContentResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+
+            // Vérifier l'appel au repository DeleteAsync
+            mockRepository.Verify(repo => repo.DeleteAsync(bidListIdToDelete), Times.Once);
         }
 
         [Fact]
@@ -139,9 +158,11 @@ namespace TestProject7
             var result = await controller.Delete(invalidId);
 
             // Assert
-            var noContentResult = Assert.IsType<NoContentResult>(result);
-            Assert.Equal(StatusCodes.Status204NoContent, noContentResult.StatusCode);
+            var badRequestResult = Assert.IsType<BadRequestResult>(result);
+            badRequestResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+            // Vérifier que le repository DeleteAsync n'est pas appelé
+            mockRepository.Verify(repo => repo.DeleteAsync(It.IsAny<int>()), Times.Never);
         }
     }
 }
-

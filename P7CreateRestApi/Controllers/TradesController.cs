@@ -24,20 +24,21 @@ public class TradeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)] // Not Found
     public async Task<IActionResult> Get(int id)
     {
-        _logger.LogInformation($"R�cup�ration de la transaction avec l'ID : {id}");
+        _logger.LogInformation($"Récupération de la transaction avec l'ID : {id}");
 
         var trade = await _tradeRepository.GetByIdAsync(id);
         if (trade == null)
         {
-            _logger.LogWarning($"Transaction avec l'ID {id} non trouv�e");
+            _logger.LogWarning($"Transaction avec l'ID {id} non trouvée");
             return NotFound();
         }
 
-        _logger.LogInformation($"Transaction avec l'ID {id} r�cup�r�e avec succ�s");
+        _logger.LogInformation($"Transaction avec l'ID {id} récupérée avec succès");
         return Ok(trade);
     }
 
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status201Created)] // Created
     [ProducesResponseType(StatusCodes.Status400BadRequest)] // Bad Request
     public async Task<IActionResult> Post([FromBody] Trade trade)
@@ -46,7 +47,7 @@ public class TradeController : ControllerBase
 
         await _tradeRepository.AddAsync(trade);
 
-        _logger.LogInformation($"Transaction ajout�e avec succ�s. ID de la transaction : {trade.TradeId}");
+        _logger.LogInformation($"Transaction ajout�e avec succès. ID de la transaction : {trade.TradeId}");
 
         return CreatedAtAction(nameof(Get), new { id = trade.TradeId }, trade);
     }
@@ -57,11 +58,11 @@ public class TradeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)] // Bad Request
     public async Task<IActionResult> Put(int id, [FromBody] Trade trade)
     {
-        _logger.LogInformation($"Mise � jour de la transaction avec l'ID : {id}");
+        _logger.LogInformation($"Mise à jour de la transaction avec l'ID : {id}");
 
         if (id != trade.TradeId)
         {
-            _logger.LogError("Incompatibilit� dans les ID de transaction. Requ�te incorrecte.");
+            _logger.LogError("Incompatibilité dans les ID de transaction. Requête incorrecte.");
             return BadRequest();
         }
 
@@ -81,7 +82,10 @@ public class TradeController : ControllerBase
 
         await _tradeRepository.DeleteAsync(id);
 
-        _logger.LogInformation($"Transaction avec l'ID {id} supprim�e avec succ�s");
+        _logger.LogInformation($"Transaction avec l'ID {id} supprimée avec succès");
         return NoContent();
     }
 }
+
+
+

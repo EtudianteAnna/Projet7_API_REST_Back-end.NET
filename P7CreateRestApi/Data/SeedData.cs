@@ -39,13 +39,10 @@ public static class SeedData
         var adminUser = await userManager.FindByNameAsync("admin");
         if (adminUser == null)
         {
-            var newAdmin = new User
-            {
-                UserName = "admin",
-                Email = "admin@example.com"
-                // Ajoutez d'autres propriétés d'utilisateur selon votre modèle
-            };
+            var newAdmin = new User("admin", "admin@example.com");
 
+            // Ajoutez l'utilisateur admin à la base de données
+            await userManager.CreateAsync(newAdmin, "MotDePasseAdmin123"); // Remplacez "MotDePasseAdmin123" par le mot de passe souhaité
             var result = await userManager.CreateAsync(newAdmin, "YourSecurePassword");
 
             if (result.Succeeded)

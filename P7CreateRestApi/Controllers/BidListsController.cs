@@ -38,6 +38,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPost]
+
         [ProducesResponseType(StatusCodes.Status201Created)] // Created
         [ProducesResponseType(StatusCodes.Status400BadRequest)] // Bad Request
         public async Task<IActionResult> Post([FromBody] BidList bidList)
